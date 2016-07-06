@@ -1,5 +1,7 @@
 package de.jochor.rdf.graphview.rule;
 
+import org.apache.jena.rdf.model.Resource;
+
 import lombok.Getter;
 
 /**
@@ -18,5 +20,9 @@ public class PredicateRenaming implements GraphModification {
 	private Matcher matcher;
 
 	private String namePattern;
+
+	public PredicateRenaming(Resource resource) {
+		// TODO Auto-generated constructor stub
+	}
 
 }

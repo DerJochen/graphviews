@@ -15,12 +15,17 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.rdf.model.impl.ModelCom;
+import org.apache.jena.vocabulary.RDF;
 
 import de.jochor.rdf.graphview.rule.GraphModification;
+import de.jochor.rdf.graphview.rule.PredicateRenaming;
 import de.jochor.rdf.graphview.rule.StatementRemoval;
+import de.jochor.rdf.graphview.vocabulary.ViewSchema;
 import info.leadinglight.jdot.Edge;
 import info.leadinglight.jdot.Graph;
 import info.leadinglight.jdot.Node;
@@ -35,7 +40,7 @@ import info.leadinglight.jdot.Node;
  * @author Jochen Hormes
  *
  */
-public class GraphView {
+public class GraphViews {
 
 	private static final ArrayList<GraphModification> EMPTY_ARRAY_LIST = new ArrayList<>();
 
@@ -98,7 +103,19 @@ public class GraphView {
 		Model schemaModel = ModelFactory.createDefaultModel();
 		schemaModel.read(Files.newInputStream(schemaFile), "", "TTL");
 
-		// TODO
+		ResIterator statementRemovalIter = schemaModel.listSubjectsWithProperty(RDF.type, ViewSchema.StatementRemoval);
+		while (statementRemovalIter.hasNext()) {
+			Resource resource = statementRemovalIter.next();
+			GraphModification graphModification = new StatementRemoval(resource, (ModelCom) schemaModel);
+			graphModifications.add(graphModification);
+		}
+
+		ResIterator predicateRenamingIter = schemaModel.listSubjectsWithProperty(RDF.type, ViewSchema.PredicateRenaming);
+		while (predicateRenamingIter.hasNext()) {
+			Resource resource = predicateRenamingIter.next();
+			GraphModification graphModification = new PredicateRenaming(resource);
+			graphModifications.add(graphModification);
+		}
 	}
 
 	private void createView(Path dataFile, ArrayList<GraphModification> graphModifications, Path targetFolder, boolean plain) throws IOException {
@@ -142,7 +159,7 @@ public class GraphView {
 
 		Path targetFile = Files.createDirectories(targetFolder).resolve("graph.dot");
 		String dotString = dotGraph.toDot();
-		Files.write(targetFile, dotString.getBytes(), StandardOpenOption.CREATE);
+		Files.write(targetFile, dotString.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	}
 
 	private void handleResource(ArrayList<GraphModification> graphModifications, Graph dotGraph, Resource subject, Property predicate, RDFNode object) {

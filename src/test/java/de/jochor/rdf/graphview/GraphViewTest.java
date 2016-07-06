@@ -19,11 +19,11 @@ public class GraphViewTest {
 
 	private static final Path schemaTarget = Paths.get("target/withSchema");
 
-	private GraphView graphView;
+	private GraphViews graphView;
 
 	@Before
 	public void setUp() throws IOException {
-		graphView = new GraphView();
+		graphView = new GraphViews();
 	}
 
 	@Test

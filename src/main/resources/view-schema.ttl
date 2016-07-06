@@ -4,15 +4,12 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @base <http://www.jochor.de/view-schema/0.1/> .
 
-:graph-modification a owl:Class .
+:GraphModification a owl:Class .
 
-:statement-removal a owl:Class ;
-	rdfs:subClassOf :graph-modification .
+:StatementRemoval a owl:Class ;
+	rdfs:subClassOf :GraphModification .
 
-:node-removal a owl:Class ;
-	rdfs:subClassOf :graph-modification .
-
-:predicate-name-replacement a owl:Class ;
-	rdfs:subClassOf :graph-modification .
+:PredicateRenaming a owl:Class ;
+	rdfs:subClassOf :GraphModification .
 
 :matcher a owl:ObjectProperty .
