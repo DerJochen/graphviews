@@ -1,0 +1,18 @@
+@prefix : <http://www.jochor.de/view-schema/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@base <http://www.jochor.de/view-schema/0.1/> .
+
+:graph-modification a owl:Class .
+
+:statement-removal a owl:Class ;
+	rdfs:subClassOf :graph-modification .
+
+:node-removal a owl:Class ;
+	rdfs:subClassOf :graph-modification .
+
+:predicate-name-replacement a owl:Class ;
+	rdfs:subClassOf :graph-modification .
+
+:matcher a owl:ObjectProperty .
