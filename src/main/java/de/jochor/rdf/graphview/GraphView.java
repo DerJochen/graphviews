@@ -37,6 +37,8 @@ import info.leadinglight.jdot.Node;
  */
 public class GraphView {
 
+	private static final ArrayList<GraphModification> EMPTY_ARRAY_LIST = new ArrayList<>();
+
 	/**
 	 * Creates a plain view of the data without any graph modifications.
 	 *
@@ -48,7 +50,7 @@ public class GraphView {
 	 *             In case of problems with the dataFile or the target Folder
 	 */
 	public void createPlainView(Path dataFile, Path targetFolder) throws IOException {
-		createView(dataFile, null, targetFolder, true);
+		createView(dataFile, EMPTY_ARRAY_LIST, targetFolder, true);
 	}
 
 	/**
@@ -62,13 +64,13 @@ public class GraphView {
 	 *             In case of problems with the dataFile or the target Folder
 	 */
 	public void createView(Path dataFile, Path targetFolder) throws IOException {
-		createView(dataFile, null, targetFolder, false);
+		createView(dataFile, EMPTY_ARRAY_LIST, targetFolder, false);
 	}
 
 	/**
 	 * Creates a graph view of the data with literal nodes mapped to attributes of the graph nodes and view schema files
 	 * applied.
-	 * 
+	 *
 	 * @param dataFile
 	 *            Data to visualize
 	 * @param targetFolder
