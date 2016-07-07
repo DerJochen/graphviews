@@ -3,12 +3,11 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix ex: <http://example.org/stuff/1.0/> .
 
-<http://www.jochor.de/demo/person/1>
-	a foaf:Person ;
+<http://www.jochor.de/demo/person/1> a foaf:Person ;
 	foaf:name "Jochen Hormes" ;
 	ex:address <http://www.jochor.de/demo/address/1> .
 
-<http://www.jochor.de/demo/address/1>
+<http://www.jochor.de/demo/address/1> a ex:Address ;
 	ex:street "Demo Street" ;
 	ex:number 42 ;
 	ex:postalcode 12345 ;

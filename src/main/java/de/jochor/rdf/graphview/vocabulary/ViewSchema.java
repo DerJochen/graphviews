@@ -29,8 +29,14 @@ public class ViewSchema {
 	}
 
 	public static final Resource GraphModification = resource("GraphModification");
-	public static final Resource StatementRemoval = resource("StatementRemoval");
+	public static final Resource NodeRenaming = resource("NodeRenaming");
 	public static final Resource PredicateRenaming = resource("PredicateRenaming");
+	public static final Resource StatementRemoval = resource("StatementRemoval");
 
 	public static final Property matcher = property("matcher");
+	public static final Property priority = property("priority");
+	public static final Property subjectType = property("subjectType");
+	public static final Property value = property("value");
+	public static final Property valuePattern = property("valuePattern");
+
 }

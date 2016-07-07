@@ -1,4 +1,4 @@
-package de.jochor.rdf.graphview.rule;
+package de.jochor.rdf.graphview.matcher;
 
 import org.apache.jena.rdf.model.Statement;
 
@@ -19,14 +19,14 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class StatementMatcher implements Matcher {
 
-	private final Statement matcher;
+	private final Statement statement;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean matches(Statement statement) {
-		boolean matches = matcher.equals(statement);
+		boolean matches = statement.equals(statement);
 		return matches;
 	}
 

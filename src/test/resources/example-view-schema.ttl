@@ -1,0 +1,13 @@
+@prefix : <urn:example-view-schema/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix vs: <http://www.jochor.de/view-schema/0.1/> .
+@prefix ex: <http://example.org/stuff/1.0/> .
+@base <urn:example-view-schema/>
+
+:AddressStreet a vs:PredicateRenaming ;
+	vs:matcher [
+		vs:subjectType ex:Address
+		rdf:predicate ex:street
+	] ;
+	vs:priority 1 ;
+	vs:value "Street" .

@@ -1,6 +1,7 @@
 package de.jochor.rdf.graphview;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -19,12 +20,12 @@ import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.rdf.model.impl.ModelCom;
 import org.apache.jena.vocabulary.RDF;
 
-import de.jochor.rdf.graphview.rule.GraphModification;
-import de.jochor.rdf.graphview.rule.PredicateRenaming;
-import de.jochor.rdf.graphview.rule.StatementRemoval;
+import de.jochor.rdf.graphview.modification.GraphModification;
+import de.jochor.rdf.graphview.modification.NodeRenaming;
+import de.jochor.rdf.graphview.modification.PredicateRenaming;
+import de.jochor.rdf.graphview.modification.StatementRemoval;
 import de.jochor.rdf.graphview.vocabulary.ViewSchema;
 import info.leadinglight.jdot.Edge;
 import info.leadinglight.jdot.Graph;
@@ -103,18 +104,24 @@ public class GraphViews {
 		Model schemaModel = ModelFactory.createDefaultModel();
 		schemaModel.read(Files.newInputStream(schemaFile), "", "TTL");
 
-		ResIterator statementRemovalIter = schemaModel.listSubjectsWithProperty(RDF.type, ViewSchema.StatementRemoval);
+		findGraphModifications(ViewSchema.StatementRemoval, StatementRemoval.class, schemaModel, graphModifications);
+		findGraphModifications(ViewSchema.NodeRenaming, NodeRenaming.class, schemaModel, graphModifications);
+		findGraphModifications(ViewSchema.PredicateRenaming, PredicateRenaming.class, schemaModel, graphModifications);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void findGraphModifications(Resource rdfType, Class<?> javaType, Model schemaModel, ArrayList<GraphModification> graphModifications) {
+		ResIterator statementRemovalIter = schemaModel.listSubjectsWithProperty(RDF.type, rdfType);
 		while (statementRemovalIter.hasNext()) {
 			Resource resource = statementRemovalIter.next();
-			GraphModification graphModification = new StatementRemoval(resource, (ModelCom) schemaModel);
-			graphModifications.add(graphModification);
-		}
-
-		ResIterator predicateRenamingIter = schemaModel.listSubjectsWithProperty(RDF.type, ViewSchema.PredicateRenaming);
-		while (predicateRenamingIter.hasNext()) {
-			Resource resource = predicateRenamingIter.next();
-			GraphModification graphModification = new PredicateRenaming(resource);
-			graphModifications.add(graphModification);
+			try {
+				Constructor<? extends GraphModification> constructor;
+				constructor = (Constructor<? extends GraphModification>) javaType.getConstructor(Resource.class);
+				GraphModification graphModification = constructor.newInstance(resource);
+				graphModifications.add(graphModification);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -126,27 +133,41 @@ public class GraphViews {
 		Model data = ModelFactory.createDefaultModel();
 		data.read(Files.newInputStream(dataFile), "", "TTL");
 
-		for (GraphModification graphModification : graphModifications) {
-			if (graphModification instanceof StatementRemoval) {
-				((StatementRemoval) graphModification).modifyGraph(data);
-			}
-		}
-
 		Graph dotGraph = new Graph();
 		HashMap<String, HashMap<String, ArrayList<String>>> attributes = plain ? null : new HashMap<>();
 
+		// TODO Statement state with applicable modifications and a collision check.
+		HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications = new HashMap<>();
 		StmtIterator stmtIterator = data.listStatements();
 		while (stmtIterator.hasNext()) {
 			Statement statement = stmtIterator.next();
+
+			relevantGraphModifications.clear();
+			for (GraphModification graphModification : graphModifications) {
+				if (graphModification.handles(statement)) {
+					Class<? extends GraphModification> type = graphModification.getClass();
+					ArrayList<GraphModification> modifications = relevantGraphModifications.get(type);
+					if (modifications == null) {
+						modifications = new ArrayList<>();
+						relevantGraphModifications.put(type, modifications);
+					}
+					modifications.add(graphModification);
+				}
+			}
+
+			ArrayList<GraphModification> statementRemovals = relevantGraphModifications.get(StatementRemoval.class);
+			if (statementRemovals != null) {
+				continue;
+			}
 
 			Resource subject = statement.getSubject();
 			dotGraph.getNode(subject.getURI(), true);
 			Property predicate = statement.getPredicate();
 			RDFNode object = statement.getObject();
 			if (object.isURIResource()) {
-				handleResource(graphModifications, dotGraph, subject, predicate, object);
+				handleResource(relevantGraphModifications, dotGraph, subject, predicate, object);
 			} else if (object.isLiteral()) {
-				handleLiteral(graphModifications, dotGraph, subject, predicate, object, attributes);
+				handleLiteral(relevantGraphModifications, dotGraph, subject, predicate, object, attributes);
 			} else {
 				// TODO Implement support for anon nodes
 				throw new UnsupportedOperationException("Anon nodes are not yet supported");
@@ -162,12 +183,21 @@ public class GraphViews {
 		Files.write(targetFile, dotString.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	}
 
-	private void handleResource(ArrayList<GraphModification> graphModifications, Graph dotGraph, Resource subject, Property predicate, RDFNode object) {
+	private void handleResource(HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications, Graph dotGraph,
+			Resource subject, Property predicate, RDFNode object) {
 		Resource objectResource = object.asResource();
 
 		String subjectName = subject.getURI();
 		String predicateName = predicate.getURI();
 		String objectName = objectResource.getURI();
+
+		ArrayList<GraphModification> nodeRenamings = relevantGraphModifications.get(NodeRenaming.class);
+		if (nodeRenamings != null) {
+			if (nodeRenamings.size() > 1) {
+				throw new IllegalStateException("Overlapping " + GraphModification.class.getSimpleName() + "s");
+			}
+			subjectName = ((NodeRenaming) nodeRenamings.get(0)).getNewName(subject);
+		}
 
 		dotGraph.getNode(objectName, true);
 
@@ -176,8 +206,8 @@ public class GraphViews {
 		dotGraph.addEdge(edge);
 	}
 
-	private void handleLiteral(ArrayList<GraphModification> graphModifications, Graph dotGraph, Resource subject, Property predicate, RDFNode object,
-			HashMap<String, HashMap<String, ArrayList<String>>> attributes) {
+	private void handleLiteral(HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications, Graph dotGraph,
+			Resource subject, Property predicate, RDFNode object, HashMap<String, HashMap<String, ArrayList<String>>> attributes) {
 		Literal literal = object.asLiteral();
 
 		String subjectName = subject.getURI();
@@ -214,13 +244,15 @@ public class GraphViews {
 
 			HashMap<String, ArrayList<String>> subjectAttributes = entry.getValue();
 			StringBuilder sb = new StringBuilder();
+			String nl = "";
 			Iterator<Entry<String, ArrayList<String>>> iter2 = subjectAttributes.entrySet().iterator();
 			while (iter2.hasNext()) {
 				Entry<String, ArrayList<String>> entry2 = iter2.next();
 				String attributeName = entry2.getKey();
 				ArrayList<String> values = entry2.getValue();
 				String value = String.join(", ", values);
-				sb.append(attributeName).append(": ").append(value).append(System.lineSeparator());
+				sb.append(nl).append(attributeName).append(": ").append(value);
+				nl = System.lineSeparator();
 			}
 
 			String subjectName = entry.getKey();

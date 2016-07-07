@@ -1,0 +1,16 @@
+@prefix : <urn:foaf-view-schema/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix vs: <http://www.jochor.de/view-schema/0.1/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@base <urn:foaf-view-schema/>
+
+:PersonName1 a vs:NodeRenaming ;
+	vs:matcher [
+		vs:subjectType foaf:Person
+	] ;
+	vs:priority 1 ;
+	vs:valuePattern [
+		a rdf:List ;
+		rdf:first foaf:name ; 
+		rdf:rest rdf:nil
+	] .

@@ -1,4 +1,4 @@
-package de.jochor.rdf.graphview.rule;
+package de.jochor.rdf.graphview.matcher;
 
 import org.apache.jena.rdf.model.Statement;
 
