@@ -1,5 +1,6 @@
 package de.jochor.rdf.graphview.matcher;
 
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.vocabulary.RDF;
@@ -23,12 +24,18 @@ public class TypeMatcher implements Matcher {
 
 	private final Resource type;
 
+	private final boolean checkBoth;
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean matches(Statement statement) {
 		boolean matches = statement.getSubject().hasProperty(RDF.type, type);
+		RDFNode object = statement.getObject();
+		if (object.isURIResource()) {
+			matches |= object.asResource().hasProperty(RDF.type, type);
+		}
 		return matches;
 	}
 

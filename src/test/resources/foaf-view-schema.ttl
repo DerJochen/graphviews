@@ -9,8 +9,5 @@
 		vs:subjectType foaf:Person
 	] ;
 	vs:priority 1 ;
-	vs:valuePattern [
-		a rdf:List ;
-		rdf:first foaf:name ; 
-		rdf:rest rdf:nil
-	] .
+	vs:valuePattern foaf:name .
+	

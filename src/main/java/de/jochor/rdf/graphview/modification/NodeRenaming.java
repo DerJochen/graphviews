@@ -1,8 +1,11 @@
 package de.jochor.rdf.graphview.modification;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.vocabulary.RDF;
 
 import de.jochor.rdf.graphview.matcher.Matcher;
@@ -24,36 +27,37 @@ import de.jochor.rdf.graphview.vocabulary.ViewSchema;
  */
 public class NodeRenaming extends GraphModificationBase {
 
-	private ArrayList<RenamingPart> renamingPattern;
+	private final ArrayList<RenamingPart> renamingPattern = new ArrayList<>();
+
+	private final HashMap<Resource, String> alreadyResolvedNames = new HashMap<>();
 
 	public NodeRenaming(Resource resource) {
 		super(resource);
+
 		createRenamingPattern(resource);
 	}
 
 	@Override
 	protected Matcher createMatcher(Resource matcherResource) {
 		Resource subjectType = matcherResource.getPropertyResourceValue(ViewSchema.subjectType);
-		Matcher matcher = new TypeMatcher(subjectType);
+		Matcher matcher = new TypeMatcher(subjectType, true);
 		return matcher;
 	}
 
 	private void createRenamingPattern(Resource resource) {
 		Resource valuePattern = resource.getPropertyResourceValue(ViewSchema.valuePattern);
-		renamingPattern = new ArrayList<>();
-		addNextElement(valuePattern, renamingPattern);
+		if (valuePattern.hasProperty(RDF.type, RDF.List)) {
+			addNextElement(valuePattern, renamingPattern);
+		} else {
+			RenamingPart renamingPart = createRenamingPart(valuePattern);
+			renamingPattern.add(renamingPart);
+		}
 	}
 
 	private void addNextElement(Resource currentResource, ArrayList<RenamingPart> renamingPattern) {
-		Resource currentElement = currentResource.getPropertyResourceValue(RDF.first);
-		RenamingPart renamingPart;
-		if (currentElement.isAnon()) {
-			renamingPart = new PropertyPathRenamingPart(currentElement);
-		} else if (currentElement.isLiteral()) {
-			renamingPart = new LiteralRenamingPart(currentElement);
-		} else {
-			throw new IllegalArgumentException("Node is not supported: " + currentElement);
-		}
+		Statement elementStatement = currentResource.getProperty(RDF.first);
+		RDFNode currentElement = elementStatement.getObject();
+		RenamingPart renamingPart = createRenamingPart(currentElement);
 		renamingPattern.add(renamingPart);
 
 		Resource nextElement = currentResource.getPropertyResourceValue(RDF.rest);
@@ -62,18 +66,34 @@ public class NodeRenaming extends GraphModificationBase {
 		}
 	}
 
-	// vs:valuePattern[
-	// a rdf:List;rdf:
-	// first foaf:name;rdf:
-	// rest rdf:nil].
+	private RenamingPart createRenamingPart(RDFNode currentElement) {
+		RenamingPart renamingPart;
+		if (currentElement.isURIResource() || currentElement.isAnon()) {
+			renamingPart = new PropertyPathRenamingPart(currentElement.asResource());
+		} else if (currentElement.isLiteral()) {
+			renamingPart = new LiteralRenamingPart(currentElement);
+		} else {
+			throw new IllegalArgumentException("Node is not supported: " + currentElement);
+		}
+		return renamingPart;
+	}
 
 	public String getNewName(Resource resource) {
-		StringBuilder sb = new StringBuilder();
-		for (RenamingPart renamingPart : renamingPattern) {
-			sb.append(renamingPart.getNewNamePart(resource));
+		String newName = alreadyResolvedNames.get(resource);
+		if (newName == null) {
+			StringBuilder sb = new StringBuilder();
+			for (RenamingPart renamingPart : renamingPattern) {
+				String newNamePart = renamingPart.getNewNamePart(resource);
+				if (newNamePart == null) {
+					return null;
+				}
+				sb.append(newNamePart);
+			}
+			newName = sb.toString();
 		}
-		String newName = sb.toString();
 		return newName;
 	}
+
+	// TODO Add canHandle(Resource) that checks all propertyPaths
 
 }

@@ -6,8 +6,37 @@
 
 :AddressStreet a vs:PredicateRenaming ;
 	vs:matcher [
-		vs:subjectType ex:Address
+		vs:subjectType ex:Address ;
 		rdf:predicate ex:street
 	] ;
 	vs:priority 1 ;
 	vs:value "Street" .
+
+:FullAddress a vs:NodeRenaming ;
+	vs:matcher [
+		vs:subjectType ex:Address
+	] ;
+	vs:priority 1 ;
+	vs:valuePattern [
+		a rdf:List ;
+		rdf:first ex:street ;
+		rdf:rest [
+			rdf:first " " ;
+			rdf:rest [
+				rdf:first ex:number ;
+				rdf:rest [
+					rdf:first "\n" ;
+					rdf:rest [
+						rdf:first ex:postalcode ;
+						rdf:rest [
+							rdf:first " " ;
+							rdf:rest [
+								rdf:first ex:city ;
+								rdf:rest rdf:nil
+							]
+						]
+					]
+				]
+			]
+		]
+	] .

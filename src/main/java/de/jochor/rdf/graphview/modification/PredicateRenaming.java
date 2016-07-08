@@ -1,6 +1,7 @@
 package de.jochor.rdf.graphview.modification;
 
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
 
 import de.jochor.rdf.graphview.matcher.Matcher;
 import de.jochor.rdf.graphview.vocabulary.ViewSchema;
@@ -36,7 +37,13 @@ public class PredicateRenaming extends GraphModificationBase {
 	@Override
 	protected Matcher createMatcher(Resource matcherResource) {
 		// TODO Auto-generated method stub
-		return null;
+		return new Matcher() {
+
+			@Override
+			public boolean matches(Statement statement) {
+				return false;
+			}
+		};
 	}
 
 }

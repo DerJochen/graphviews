@@ -191,12 +191,36 @@ public class GraphViews {
 		String predicateName = predicate.getURI();
 		String objectName = objectResource.getURI();
 
+		Node subjectNode = dotGraph.getNode(subjectName, true);
+		Node objectNode = dotGraph.getNode(objectName, true);
+
 		ArrayList<GraphModification> nodeRenamings = relevantGraphModifications.get(NodeRenaming.class);
 		if (nodeRenamings != null) {
-			if (nodeRenamings.size() > 1) {
-				throw new IllegalStateException("Overlapping " + GraphModification.class.getSimpleName() + "s");
+			String subjectLabel = null;
+			String objectLabel = null;
+
+			for (int i = 0; i < nodeRenamings.size(); i++) {
+				NodeRenaming nodeRenaming = (NodeRenaming) nodeRenamings.get(i);
+
+				String newSubjectLabel = nodeRenaming.getNewName(subject);
+				if (subjectLabel != null && newSubjectLabel != null && !subjectLabel.equals(newSubjectLabel)) {
+					throw new IllegalStateException("Duplicate renaming of " + subject);
+				}
+				subjectLabel = newSubjectLabel;
+
+				String newObjectLabel = nodeRenaming.getNewName(subject);
+				if (objectLabel != null && newObjectLabel != null && !objectLabel.equals(newObjectLabel)) {
+					throw new IllegalStateException("Duplicate renaming of " + object);
+				}
+				objectLabel = newObjectLabel;
 			}
-			subjectName = ((NodeRenaming) nodeRenamings.get(0)).getNewName(subject);
+
+			if (subjectLabel != null) {
+				subjectNode.setLabel(subjectLabel);
+			}
+			if (objectLabel != null) {
+				objectNode.setLabel(objectLabel);
+			}
 		}
 
 		dotGraph.getNode(objectName, true);
@@ -213,6 +237,18 @@ public class GraphViews {
 		String subjectName = subject.getURI();
 		String predicateName = predicate.getURI();
 		String literalValue = literal.getValue().toString();
+
+		Node subjectNode = dotGraph.getNode(subjectName, true);
+
+		ArrayList<GraphModification> nodeRenamings = relevantGraphModifications.get(NodeRenaming.class);
+		if (nodeRenamings != null) {
+			if (nodeRenamings.size() > 1) {
+				throw new IllegalStateException("Overlapping " + GraphModification.class.getSimpleName() + "s");
+			}
+			NodeRenaming nodeRenaming = (NodeRenaming) nodeRenamings.get(0);
+			String subjectLabel = nodeRenaming.getNewName(subject);
+			subjectNode.setLabel(subjectLabel);
+		}
 
 		if (attributes == null) {
 			String objectName = UUID.randomUUID().toString();

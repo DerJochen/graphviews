@@ -1,5 +1,6 @@
 package de.jochor.rdf.graphview.renaming;
 
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class LiteralRenamingPart implements RenamingPart {
 
 	private final String newNamePart;
 
-	public LiteralRenamingPart(Resource currentElement) {
+	public LiteralRenamingPart(RDFNode currentElement) {
 		newNamePart = currentElement.asLiteral().toString();
 	}
 
