@@ -11,3 +11,10 @@
 	vs:priority 1 ;
 	vs:valuePattern foaf:name .
 	
+:PersonName a vs:PredicateRenaming ;
+	vs:matcher [
+		rdf:predicate foaf:name
+	] ;
+	vs:priority 1 ;
+	vs:value "Full Name" .
+	

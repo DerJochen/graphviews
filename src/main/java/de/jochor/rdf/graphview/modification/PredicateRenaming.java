@@ -1,9 +1,12 @@
 package de.jochor.rdf.graphview.modification;
 
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.vocabulary.RDF;
 
 import de.jochor.rdf.graphview.matcher.Matcher;
+import de.jochor.rdf.graphview.matcher.StatementMatcher;
 import de.jochor.rdf.graphview.vocabulary.ViewSchema;
 import lombok.Getter;
 
@@ -36,22 +39,10 @@ public class PredicateRenaming extends GraphModificationBase {
 	 */
 	@Override
 	protected Matcher createMatcher(Resource matcherResource) {
-		// TODO Auto-generated method stub
-		return new Matcher() {
-
-			@Override
-			public boolean matches(Statement statement) {
-				return false;
-			}
-		};
+		Statement predicateStatement = matcherResource.getProperty(RDF.predicate);
+		Property predicateResource = predicateStatement.getObject().as(Property.class);
+		Matcher matcher = new StatementMatcher(null, predicateResource, null, matcherResource.getModel());
+		return matcher;
 	}
 
 }
-
-// :AddressStreet a vs:PredicateRenaming ;
-// vs:matcher [
-// vs:subjectType ex:Address
-// rdf:predicate ex:street
-// ] ;
-// vs:priority 1
-// vs:value "Street" .

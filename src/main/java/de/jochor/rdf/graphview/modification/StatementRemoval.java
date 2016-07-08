@@ -1,11 +1,7 @@
 package de.jochor.rdf.graphview.modification;
 
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.impl.ModelCom;
-import org.apache.jena.rdf.model.impl.StatementImpl;
 import org.apache.jena.vocabulary.RDF;
 
 import de.jochor.rdf.graphview.matcher.Matcher;
@@ -36,16 +32,8 @@ public class StatementRemoval extends GraphModificationBase {
 	protected Matcher createMatcher(Resource matcherResource) {
 		Resource subjectResource = matcherResource.getPropertyResourceValue(RDF.subject);
 		Resource predicateResource = matcherResource.getPropertyResourceValue(RDF.predicate);
-		Statement objectStatement = matcherResource.getProperty(RDF.subject);
-
-		Node subjectNode = subjectResource != null ? subjectResource.asNode() : Node.ANY;
-		Node predicateNode = predicateResource != null ? predicateResource.asNode() : Node.ANY;
-		Node objectNode = objectStatement != null ? objectStatement.getObject().asNode() : Node.ANY;
-
-		Triple triple = new Triple(subjectNode, predicateNode, objectNode);
-		ModelCom model = (ModelCom) matcherResource.getModel();
-		Statement statement = StatementImpl.toStatement(triple, model);
-		return new StatementMatcher(statement);
+		Statement objectStatement = matcherResource.getProperty(RDF.object);
+		return new StatementMatcher(subjectResource, predicateResource, objectStatement, matcherResource.getModel());
 	}
 
 }

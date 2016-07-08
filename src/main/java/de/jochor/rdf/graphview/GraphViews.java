@@ -194,6 +194,8 @@ public class GraphViews {
 		Node subjectNode = dotGraph.getNode(subjectName, true);
 		Node objectNode = dotGraph.getNode(objectName, true);
 
+		String predicateLabel = predicateName;
+
 		ArrayList<GraphModification> nodeRenamings = relevantGraphModifications.get(NodeRenaming.class);
 		if (nodeRenamings != null) {
 			String subjectLabel = null;
@@ -223,10 +225,19 @@ public class GraphViews {
 			}
 		}
 
+		ArrayList<GraphModification> predicaateRenamings = relevantGraphModifications.get(PredicateRenaming.class);
+		if (predicaateRenamings != null) {
+			if (predicaateRenamings.size() > 1) {
+				throw new IllegalStateException("Overlapping " + GraphModification.class.getSimpleName() + "s");
+			}
+			PredicateRenaming predicateRenaming = (PredicateRenaming) predicaateRenamings.get(0);
+			predicateLabel = predicateRenaming.getValue();
+		}
+
 		dotGraph.getNode(objectName, true);
 
 		Edge edge = new Edge(subjectName, objectName);
-		edge.setLabel(predicateName);
+		edge.setLabel(predicateLabel);
 		dotGraph.addEdge(edge);
 	}
 
@@ -240,6 +251,8 @@ public class GraphViews {
 
 		Node subjectNode = dotGraph.getNode(subjectName, true);
 
+		String predicateLabel = predicateName;
+
 		ArrayList<GraphModification> nodeRenamings = relevantGraphModifications.get(NodeRenaming.class);
 		if (nodeRenamings != null) {
 			if (nodeRenamings.size() > 1) {
@@ -250,13 +263,22 @@ public class GraphViews {
 			subjectNode.setLabel(subjectLabel);
 		}
 
+		ArrayList<GraphModification> predicaateRenamings = relevantGraphModifications.get(PredicateRenaming.class);
+		if (predicaateRenamings != null) {
+			if (predicaateRenamings.size() > 1) {
+				throw new IllegalStateException("Overlapping " + GraphModification.class.getSimpleName() + "s");
+			}
+			PredicateRenaming predicateRenaming = (PredicateRenaming) predicaateRenamings.get(0);
+			predicateLabel = predicateRenaming.getValue();
+		}
+
 		if (attributes == null) {
 			String objectName = UUID.randomUUID().toString();
 			Node objectNode = dotGraph.getNode(objectName, true);
 			objectNode.setLabel(literalValue);
 
 			Edge edge = new Edge(subjectName, objectName);
-			edge.setLabel(predicateName);
+			edge.setLabel(predicateLabel);
 			dotGraph.addEdge(edge);
 		} else {
 			HashMap<String, ArrayList<String>> subjectAttributes = attributes.get(subjectName);
@@ -264,10 +286,10 @@ public class GraphViews {
 				subjectAttributes = new HashMap<>();
 				attributes.put(subjectName, subjectAttributes);
 			}
-			ArrayList<String> attributeData = subjectAttributes.get(predicateName);
+			ArrayList<String> attributeData = subjectAttributes.get(predicateLabel);
 			if (attributeData == null) {
 				attributeData = new ArrayList<>();
-				subjectAttributes.put(predicateName, attributeData);
+				subjectAttributes.put(predicateLabel, attributeData);
 			}
 			attributeData.add(literalValue);
 		}
