@@ -79,6 +79,10 @@ public class NodeRenaming extends GraphModificationBase {
 	}
 
 	public String getNewName(Resource resource) {
+		if (!handlesResource(resource)) {
+			// return null; TODO
+		}
+
 		String newName = alreadyResolvedNames.get(resource);
 		if (newName == null) {
 			StringBuilder sb = new StringBuilder();
@@ -92,6 +96,14 @@ public class NodeRenaming extends GraphModificationBase {
 			newName = sb.toString();
 		}
 		return newName;
+	}
+
+	// TODO
+	private boolean handlesResource(Resource resource) {
+		// Statement tempStatement = new StatementImpl(resource, null, null);
+		// boolean matches = matcher.matches(tempStatement);
+		// return matches;
+		return true;
 	}
 
 	// TODO Add canHandle(Resource) that checks all propertyPaths

@@ -210,7 +210,7 @@ public class GraphViews {
 				}
 				subjectLabel = newSubjectLabel;
 
-				String newObjectLabel = nodeRenaming.getNewName(subject);
+				String newObjectLabel = nodeRenaming.getNewName(object.asResource());
 				if (objectLabel != null && newObjectLabel != null && !objectLabel.equals(newObjectLabel)) {
 					throw new IllegalStateException("Duplicate renaming of " + object);
 				}

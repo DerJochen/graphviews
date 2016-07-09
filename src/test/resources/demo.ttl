@@ -12,4 +12,18 @@
 	ex:number 42 ;
 	ex:postalcode 12345 ;
 	ex:city "Demo" .
-  
+
+<http://www.jochor.de/demo/person/2> a foaf:Person ;
+	foaf:name "John Dow" ;
+	ex:address <http://www.jochor.de/demo/address/2> .
+
+<http://www.jochor.de/demo/address/2> a ex:Address ;
+	ex:street "Demo Street" ;
+	ex:number 23 ;
+	ex:postalcode 12345 ;
+	ex:city "Demo" .
+
+<http://www.jochor.de/demo/person/3> a foaf:Person ;
+	foaf:name "Demo Person" ;
+	ex:address <http://www.jochor.de/demo/address/1> .
+	

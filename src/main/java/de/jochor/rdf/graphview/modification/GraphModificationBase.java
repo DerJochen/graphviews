@@ -18,7 +18,7 @@ import de.jochor.rdf.graphview.vocabulary.ViewSchema;
  */
 public abstract class GraphModificationBase implements GraphModification {
 
-	private final Matcher matcher;
+	protected final Matcher matcher;
 
 	public GraphModificationBase(Resource resource) {
 		Resource matcherResource = resource.getPropertyResourceValue(ViewSchema.matcher);
