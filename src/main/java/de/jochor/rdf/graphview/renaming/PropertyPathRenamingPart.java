@@ -46,7 +46,7 @@ public class PropertyPathRenamingPart implements RenamingPart {
 
 	private void addNextElement(Resource currentElement) {
 		Resource currentEntry = currentElement.getPropertyResourceValue(RDF.first);
-		if (currentEntry.isURIResource() && currentElement.canAs(Property.class)) {
+		if (currentEntry.isURIResource()) {
 			Property pathPart = currentEntry.as(Property.class);
 			propertyPath.add(pathPart);
 		} else {

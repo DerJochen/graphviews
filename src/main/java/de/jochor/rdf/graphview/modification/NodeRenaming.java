@@ -40,7 +40,7 @@ public class NodeRenaming extends GraphModificationBase {
 	@Override
 	protected Matcher createMatcher(Resource matcherResource) {
 		Resource subjectType = matcherResource.getPropertyResourceValue(ViewSchema.subjectType);
-		Matcher matcher = new TypeMatcher(subjectType, true);
+		Matcher matcher = new TypeMatcher(subjectType, true, true);
 		return matcher;
 	}
 

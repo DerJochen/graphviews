@@ -54,11 +54,25 @@
 				rdf:rest [
 					rdf:first "\n" ;
 					rdf:rest [
-						rdf:first ex:postalcode ;
+						rdf:first [
+							a rdf:List ;
+							rdf:first ex:city ;
+							rdf:rest [
+								rdf:first ex:postalcode ;
+								rdf:rest rdf:nil;
+							]
+						] ;
 						rdf:rest [
 							rdf:first " " ;
 							rdf:rest [
-								rdf:first ex:city ;
+								rdf:first [
+									a rdf:List ;
+									rdf:first ex:city ;
+									rdf:rest [
+										rdf:first ex:name ;
+										rdf:rest rdf:nil
+									]
+								] ;
 								rdf:rest rdf:nil
 							]
 						]
@@ -67,3 +81,14 @@
 			]
 		]
 	] .
+
+:IgnoreCities1 a vs:StatementRemoval ;
+	vs:matcher [
+		vs:subjectType ex:City
+	] .
+
+:IgnoreCities2 a vs:StatementRemoval ;
+	vs:matcher [
+		vs:objectType ex:City
+	] .
+	

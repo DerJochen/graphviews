@@ -24,16 +24,21 @@ public class TypeMatcher implements Matcher {
 
 	private final Resource type;
 
-	private final boolean checkBoth;
+	private final boolean checkSubject;
+
+	private final boolean checkObject;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean matches(Statement statement) {
-		boolean matches = statement.getSubject().hasProperty(RDF.type, type);
+		boolean matches = false;
+		if (checkSubject) {
+			matches |= statement.getSubject().hasProperty(RDF.type, type);
+		}
 		RDFNode object = statement.getObject();
-		if (object.isURIResource()) {
+		if (checkObject && object.isURIResource()) {
 			matches |= object.asResource().hasProperty(RDF.type, type);
 		}
 		return matches;

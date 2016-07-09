@@ -6,6 +6,8 @@ import org.apache.jena.vocabulary.RDF;
 
 import de.jochor.rdf.graphview.matcher.Matcher;
 import de.jochor.rdf.graphview.matcher.StatementMatcher;
+import de.jochor.rdf.graphview.matcher.TypeMatcher;
+import de.jochor.rdf.graphview.vocabulary.ViewSchema;
 import lombok.Getter;
 
 /**
@@ -30,10 +32,25 @@ public class StatementRemoval extends GraphModificationBase {
 	 */
 	@Override
 	protected Matcher createMatcher(Resource matcherResource) {
+		// TODO add support for subject and object types
 		Resource subjectResource = matcherResource.getPropertyResourceValue(RDF.subject);
 		Resource predicateResource = matcherResource.getPropertyResourceValue(RDF.predicate);
 		Statement objectStatement = matcherResource.getProperty(RDF.object);
-		return new StatementMatcher(subjectResource, predicateResource, objectStatement, matcherResource.getModel());
+		if (subjectResource != null || predicateResource != null || objectStatement != null) {
+			return new StatementMatcher(subjectResource, predicateResource, objectStatement, matcherResource.getModel());
+		}
+
+		Resource subjectTypeResource = matcherResource.getPropertyResourceValue(ViewSchema.subjectType);
+		if (subjectTypeResource != null) {
+			return new TypeMatcher(subjectTypeResource, true, false);
+		}
+
+		Resource objectTypeResource = matcherResource.getPropertyResourceValue(ViewSchema.objectType);
+		if (objectTypeResource != null) {
+			return new TypeMatcher(objectTypeResource, false, true);
+		}
+
+		throw new UnsupportedOperationException();
 	}
 
 }
