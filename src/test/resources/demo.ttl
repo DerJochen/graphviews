@@ -5,7 +5,8 @@
 
 <http://www.jochor.de/demo/person/1> a foaf:Person ;
 	foaf:name "Jochen Hormes" ;
-	ex:address <http://www.jochor.de/demo/address/1> .
+	ex:address <http://www.jochor.de/demo/address/1> ;
+	foaf:knows <http://www.jochor.de/demo/person/2> .
 
 <http://www.jochor.de/demo/address/1> a ex:Address ;
 	ex:street "Demo Street" ;

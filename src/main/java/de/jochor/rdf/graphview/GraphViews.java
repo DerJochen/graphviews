@@ -194,8 +194,6 @@ public class GraphViews {
 		Node subjectNode = dotGraph.getNode(subjectName, true);
 		Node objectNode = dotGraph.getNode(objectName, true);
 
-		String predicateLabel = predicateName;
-
 		ArrayList<GraphModification> nodeRenamings = relevantGraphModifications.get(NodeRenaming.class);
 		if (nodeRenamings != null) {
 			String subjectLabel = null;
@@ -225,6 +223,8 @@ public class GraphViews {
 			}
 		}
 
+		String predicateLabel = null;
+
 		ArrayList<GraphModification> predicaateRenamings = relevantGraphModifications.get(PredicateRenaming.class);
 		if (predicaateRenamings != null) {
 			if (predicaateRenamings.size() > 1) {
@@ -237,8 +237,12 @@ public class GraphViews {
 		dotGraph.getNode(objectName, true);
 
 		Edge edge = new Edge(subjectName, objectName);
-		edge.setLabel(predicateLabel);
 		dotGraph.addEdge(edge);
+		if (predicateLabel == null) {
+			predicateLabel = predicate.getLocalName();
+		}
+		edge.setLabel(predicateLabel);
+		edge.setToolTip("_Term_: " + predicateName);
 	}
 
 	private void handleLiteral(HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications, Graph dotGraph,
