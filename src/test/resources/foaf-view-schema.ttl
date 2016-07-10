@@ -4,17 +4,16 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @base <urn:foaf-view-schema/>
 
-:PersonName1 a vs:NodeRenaming ;
+:PersonRenaming a vs:NodeRenaming ;
 	vs:matcher [
 		vs:subjectType foaf:Person
 	] ;
 	vs:priority 1 ;
 	vs:valuePattern foaf:name .
-	
+
 :PersonName a vs:PredicateRenaming ;
 	vs:matcher [
 		rdf:predicate foaf:name
 	] ;
 	vs:priority 1 ;
 	vs:value "Full Name" .
-	

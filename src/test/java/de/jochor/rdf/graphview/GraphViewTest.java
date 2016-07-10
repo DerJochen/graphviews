@@ -13,13 +13,13 @@ public class GraphViewTest {
 
 	private static final Path dataFile = Paths.get("src/test/resources/demo.ttl");
 
-	private static final Path schemaFile = Paths.get("src/test/resources/rdf-syntax-ignore.ttl");
-
 	private static final Path defaultTarget = Paths.get("target/default");
 
 	private static final Path plainTarget = Paths.get("target/plain");
 
 	private static final Path schemaTarget = Paths.get("target/withSchema");
+
+	private static final Path schemaTarget2 = Paths.get("target/withSchema2");
 
 	private GraphViews graphView;
 
@@ -45,6 +45,14 @@ public class GraphViewTest {
 	@Test
 	public void testModifiedView() throws IOException {
 		graphView.createModifiedView(dataFile, schemaTarget, Paths.get(SCHEMA_BASE + "example-view-schema.ttl"),
+				Paths.get(SCHEMA_BASE + "foaf-view-schema.ttl"), Paths.get(SCHEMA_BASE + "rdf-syntax-ignore.ttl"));
+
+		// TODO check Result
+	}
+
+	@Test
+	public void testModifiedView2() throws IOException {
+		graphView.createModifiedView(dataFile, schemaTarget2, Paths.get(SCHEMA_BASE + "example-view-schema2.ttl"),
 				Paths.get(SCHEMA_BASE + "foaf-view-schema.ttl"), Paths.get(SCHEMA_BASE + "rdf-syntax-ignore.ttl"));
 
 		// TODO check Result

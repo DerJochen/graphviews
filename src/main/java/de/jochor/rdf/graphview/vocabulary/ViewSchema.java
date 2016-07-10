@@ -36,6 +36,7 @@ public class ViewSchema {
 	public static final Property matcher = property("matcher");
 	public static final Property objectType = property("objectType");
 	public static final Property priority = property("priority");
+	public static final Property replaces = property("replaces");
 	public static final Property subjectType = property("subjectType");
 	public static final Property value = property("value");
 	public static final Property valuePattern = property("valuePattern");

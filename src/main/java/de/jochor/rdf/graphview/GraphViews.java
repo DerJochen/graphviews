@@ -87,26 +87,34 @@ public class GraphViews {
 	 *             In case of problems with the dataFile or the target Folder
 	 */
 	public void createModifiedView(Path dataFile, Path targetFolder, Path... schemaFiles) throws IOException {
+		Model schemaModel = ModelFactory.createDefaultModel();
 		ArrayList<GraphModification> graphModifications = new ArrayList<>();
 
 		for (Path schemaFile : schemaFiles) {
-			readGraphModifications(schemaFile, graphModifications);
+			readGraphModifications(schemaFile, graphModifications, schemaModel);
 		}
-
-		createView(dataFile, graphModifications, targetFolder, false);
-	}
-
-	private void readGraphModifications(Path schemaFile, ArrayList<GraphModification> graphModifications) throws IOException {
-		if (!Files.isReadable(schemaFile)) {
-			throw new IllegalArgumentException("File " + schemaFile + " is not readable");
-		}
-
-		Model schemaModel = ModelFactory.createDefaultModel();
-		schemaModel.read(Files.newInputStream(schemaFile), "", "TTL");
 
 		findGraphModifications(ViewSchema.StatementRemoval, StatementRemoval.class, schemaModel, graphModifications);
 		findGraphModifications(ViewSchema.NodeRenaming, NodeRenaming.class, schemaModel, graphModifications);
 		findGraphModifications(ViewSchema.PredicateRenaming, PredicateRenaming.class, schemaModel, graphModifications);
+
+		createView(dataFile, graphModifications, targetFolder, false);
+	}
+
+	private void readGraphModifications(Path schemaFile, ArrayList<GraphModification> graphModifications, Model schemaModel) throws IOException {
+		if (!Files.isReadable(schemaFile)) {
+			throw new IllegalArgumentException("File " + schemaFile + " is not readable");
+		}
+
+		schemaModel.read(Files.newInputStream(schemaFile), "", "TTL");
+
+		StmtIterator stmtIterator = schemaModel.listStatements(null, ViewSchema.replaces, (RDFNode) null);
+		while (stmtIterator.hasNext()) {
+			Statement replaceStatement = stmtIterator.next();
+			Resource replacedModification = replaceStatement.getObject().asResource();
+			StmtIterator stmtIterator2 = schemaModel.listStatements(replacedModification, RDF.type, (RDFNode) null);
+			schemaModel.remove(stmtIterator2);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

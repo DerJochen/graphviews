@@ -1,0 +1,132 @@
+@prefix : <urn:example-view-schema/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix vs: <http://www.jochor.de/view-schema/0.1/> .
+@prefix ex: <http://example.org/stuff/1.0/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix foaf-vs: <urn:foaf-view-schema/> .
+@base <urn:example-view-schema/>
+
+:PersonRenaming a vs:NodeRenaming ;
+	vs:matcher [
+		vs:subjectType foaf:Person
+	] ;
+	vs:replaces foaf-vs:PersonRenaming ;
+	vs:valuePattern [
+		a rdf:List ;
+		rdf:first foaf:name ;
+		rdf:rest [
+			rdf:first "\n" ;
+			rdf:rest [
+				rdf:first [
+					a rdf:List ;
+					rdf:first ex:address ;
+					rdf:rest [
+						rdf:first ex:street ;
+						rdf:rest rdf:nil
+					]
+				] ;
+				rdf:rest [
+					rdf:first " " ;
+					rdf:rest [
+						rdf:first [
+							a rdf:List ;
+							rdf:first ex:address ;
+							rdf:rest [
+								rdf:first ex:number ;
+								rdf:rest rdf:nil
+							]
+						] ;
+						rdf:rest [
+							rdf:first "\n" ;
+							rdf:rest [
+								rdf:first [
+									a rdf:List ;
+									rdf:first ex:address ;
+									rdf:rest [
+										rdf:first ex:city ;
+										rdf:rest [
+											rdf:first ex:postalcode ;
+											rdf:rest rdf:nil
+										]
+									]
+								] ;
+								rdf:rest [
+									rdf:first " " ;
+									rdf:rest [
+										rdf:first [
+											a rdf:List ;
+											rdf:first ex:address ;
+											rdf:rest [
+												rdf:first ex:city ;
+												rdf:rest [
+													rdf:first ex:name ;
+													rdf:rest rdf:nil
+												]
+											]
+										] ;
+										rdf:rest rdf:nil
+									]
+								]
+							]
+						]
+					]
+				]
+			]
+		]
+	] .
+
+:AddressProperty a vs:PredicateRenaming ;
+	vs:matcher [
+		rdf:predicate ex:address
+	] ;
+	vs:priority 1 ;
+	vs:value "Adresse" .
+
+:AddressStreet a vs:PredicateRenaming ;
+	vs:matcher [
+		rdf:predicate ex:street
+	] ;
+	vs:priority 1 ;
+	vs:value "Street" .
+
+:AddressNumber a vs:PredicateRenaming ;
+	vs:matcher [
+		rdf:predicate ex:number
+	] ;
+	vs:priority 1 ;
+	vs:value "Number" .
+
+:AddressPostalCode a vs:PredicateRenaming ;
+	vs:matcher [
+		rdf:predicate ex:postalcode
+	] ;
+	vs:priority 1 ;
+	vs:value "Postal Code" .
+
+:AddressCity a vs:PredicateRenaming ;
+	vs:matcher [
+		rdf:predicate ex:city
+	] ;
+	vs:priority 1 ;
+	vs:value "City" .
+
+:IgnoreAddresses1 a vs:StatementRemoval ;
+	vs:matcher [
+		vs:subjectType ex:Address
+	] .
+
+:IgnoreAdresses2 a vs:StatementRemoval ;
+	vs:matcher [
+		vs:objectType ex:Address
+	] .
+	
+:IgnoreCities1 a vs:StatementRemoval ;
+	vs:matcher [
+		vs:subjectType ex:City
+	] .
+
+:IgnoreCities2 a vs:StatementRemoval ;
+	vs:matcher [
+		vs:objectType ex:City
+	] .
+	
