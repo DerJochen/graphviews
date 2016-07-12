@@ -12,7 +12,7 @@ public class PropertyPathRenamingPart implements RenamingPart {
 	private final ArrayList<Property> propertyPath = new ArrayList<>();
 
 	public PropertyPathRenamingPart(Resource propertyPathResource) {
-		if (propertyPathResource.hasProperty(RDF.type, RDF.List)) {
+		if (propertyPathResource.hasProperty(RDF.first)) {
 			addNextElement(propertyPathResource);
 		} else {
 			if (propertyPathResource.isURIResource() && propertyPathResource.canAs(Property.class)) {

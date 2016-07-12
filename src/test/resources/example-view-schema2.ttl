@@ -11,69 +11,7 @@
 		vs:subjectType foaf:Person
 	] ;
 	vs:replaces foaf-vs:PersonRenaming ;
-	vs:valuePattern [
-		a rdf:List ;
-		rdf:first foaf:name ;
-		rdf:rest [
-			rdf:first "\n" ;
-			rdf:rest [
-				rdf:first [
-					a rdf:List ;
-					rdf:first ex:address ;
-					rdf:rest [
-						rdf:first ex:street ;
-						rdf:rest rdf:nil
-					]
-				] ;
-				rdf:rest [
-					rdf:first " " ;
-					rdf:rest [
-						rdf:first [
-							a rdf:List ;
-							rdf:first ex:address ;
-							rdf:rest [
-								rdf:first ex:number ;
-								rdf:rest rdf:nil
-							]
-						] ;
-						rdf:rest [
-							rdf:first "\n" ;
-							rdf:rest [
-								rdf:first [
-									a rdf:List ;
-									rdf:first ex:address ;
-									rdf:rest [
-										rdf:first ex:city ;
-										rdf:rest [
-											rdf:first ex:postalcode ;
-											rdf:rest rdf:nil
-										]
-									]
-								] ;
-								rdf:rest [
-									rdf:first " " ;
-									rdf:rest [
-										rdf:first [
-											a rdf:List ;
-											rdf:first ex:address ;
-											rdf:rest [
-												rdf:first ex:city ;
-												rdf:rest [
-													rdf:first ex:name ;
-													rdf:rest rdf:nil
-												]
-											]
-										] ;
-										rdf:rest rdf:nil
-									]
-								]
-							]
-						]
-					]
-				]
-			]
-		]
-	] .
+	vs:valuePattern (foaf:name "\n" (ex:address ex:street) " " (ex:address ex:number) "\n" (ex:address ex:city ex:postalcode) " " (ex:address ex:city ex:name)) .
 
 :AddressProperty a vs:PredicateRenaming ;
 	vs:matcher [

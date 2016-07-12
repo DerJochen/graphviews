@@ -46,7 +46,7 @@ public class NodeRenaming extends GraphModificationBase {
 
 	private void createRenamingPattern(Resource resource) {
 		Resource valuePattern = resource.getPropertyResourceValue(ViewSchema.valuePattern);
-		if (valuePattern.hasProperty(RDF.type, RDF.List)) {
+		if (valuePattern.hasProperty(RDF.first)) {
 			addNextElement(valuePattern, renamingPattern);
 		} else {
 			RenamingPart renamingPart = createRenamingPart(valuePattern);

@@ -44,43 +44,7 @@
 		vs:subjectType ex:Address
 	] ;
 	vs:priority 1 ;
-	vs:valuePattern [
-		a rdf:List ;
-		rdf:first ex:street ;
-		rdf:rest [
-			rdf:first " " ;
-			rdf:rest [
-				rdf:first ex:number ;
-				rdf:rest [
-					rdf:first "\n" ;
-					rdf:rest [
-						rdf:first [
-							a rdf:List ;
-							rdf:first ex:city ;
-							rdf:rest [
-								rdf:first ex:postalcode ;
-								rdf:rest rdf:nil;
-							]
-						] ;
-						rdf:rest [
-							rdf:first " " ;
-							rdf:rest [
-								rdf:first [
-									a rdf:List ;
-									rdf:first ex:city ;
-									rdf:rest [
-										rdf:first ex:name ;
-										rdf:rest rdf:nil
-									]
-								] ;
-								rdf:rest rdf:nil
-							]
-						]
-					]
-				]
-			]
-		]
-	] .
+	vs:valuePattern (ex:street " " ex:number "\n" (ex:city ex:postalcode) " " (ex:city ex:name)) .
 
 :IgnoreCities1 a vs:StatementRemoval ;
 	vs:matcher [
