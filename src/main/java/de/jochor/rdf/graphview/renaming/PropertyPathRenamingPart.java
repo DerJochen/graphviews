@@ -2,9 +2,14 @@ package de.jochor.rdf.graphview.renaming;
 
 import java.util.ArrayList;
 
+import org.apache.jena.enhanced.EnhGraph;
 import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.RDFList;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.impl.RDFListImpl;
+import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDF;
 
 public class PropertyPathRenamingPart implements RenamingPart {
@@ -13,7 +18,17 @@ public class PropertyPathRenamingPart implements RenamingPart {
 
 	public PropertyPathRenamingPart(Resource propertyPathResource) {
 		if (propertyPathResource.hasProperty(RDF.first)) {
-			addNextElement(propertyPathResource);
+			RDFList list = new RDFListImpl(propertyPathResource.asNode(), (EnhGraph) propertyPathResource.getModel());
+			ExtendedIterator<RDFNode> iter = list.iterator();
+			while (iter.hasNext()) {
+				RDFNode currentElement = iter.next();
+				if (currentElement.isURIResource()) {
+					Property pathPart = currentElement.as(Property.class);
+					propertyPath.add(pathPart);
+				} else {
+					throw new IllegalArgumentException("Node is not supported: " + currentElement);
+				}
+			}
 		} else {
 			if (propertyPathResource.isURIResource() && propertyPathResource.canAs(Property.class)) {
 				Property pathPart = propertyPathResource.as(Property.class);
@@ -42,21 +57,6 @@ public class PropertyPathRenamingPart implements RenamingPart {
 		}
 		String newNamePart = literalStatement.getString();
 		return newNamePart;
-	}
-
-	private void addNextElement(Resource currentElement) {
-		Resource currentEntry = currentElement.getPropertyResourceValue(RDF.first);
-		if (currentEntry.isURIResource()) {
-			Property pathPart = currentEntry.as(Property.class);
-			propertyPath.add(pathPart);
-		} else {
-			throw new IllegalArgumentException("Node is not supported: " + currentEntry);
-		}
-
-		Resource nextElement = currentElement.getPropertyResourceValue(RDF.rest);
-		if (!RDF.nil.equals(nextElement)) {
-			addNextElement(nextElement);
-		}
 	}
 
 }

@@ -3,9 +3,12 @@ package de.jochor.rdf.graphview.modification;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.jena.enhanced.EnhGraph;
+import org.apache.jena.rdf.model.RDFList;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.impl.RDFListImpl;
+import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.jena.vocabulary.RDF;
 
 import de.jochor.rdf.graphview.matcher.Matcher;
@@ -47,22 +50,16 @@ public class NodeRenaming extends GraphModificationBase {
 	private void createRenamingPattern(Resource resource) {
 		Resource valuePattern = resource.getPropertyResourceValue(ViewSchema.valuePattern);
 		if (valuePattern.hasProperty(RDF.first)) {
-			addNextElement(valuePattern, renamingPattern);
+			RDFList list = new RDFListImpl(valuePattern.asNode(), (EnhGraph) valuePattern.getModel());
+			ExtendedIterator<RDFNode> iter = list.iterator();
+			while (iter.hasNext()) {
+				RDFNode currentElement = iter.next();
+				RenamingPart renamingPart = createRenamingPart(currentElement);
+				renamingPattern.add(renamingPart);
+			}
 		} else {
 			RenamingPart renamingPart = createRenamingPart(valuePattern);
 			renamingPattern.add(renamingPart);
-		}
-	}
-
-	private void addNextElement(Resource currentResource, ArrayList<RenamingPart> renamingPattern) {
-		Statement elementStatement = currentResource.getProperty(RDF.first);
-		RDFNode currentElement = elementStatement.getObject();
-		RenamingPart renamingPart = createRenamingPart(currentElement);
-		renamingPattern.add(renamingPart);
-
-		Resource nextElement = currentResource.getPropertyResourceValue(RDF.rest);
-		if (!RDF.nil.equals(nextElement)) {
-			addNextElement(nextElement, renamingPattern);
 		}
 	}
 
