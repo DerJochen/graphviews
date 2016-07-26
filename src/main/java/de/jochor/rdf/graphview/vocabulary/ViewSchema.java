@@ -4,6 +4,16 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 
+/**
+ * Node renaming rule.
+ *
+ * <p>
+ * <b>Started:</b> ?
+ * </p>
+ *
+ * @author Jochen Hormes
+ *
+ */
 public class ViewSchema {
 
 	/**
