@@ -4,6 +4,14 @@
 @prefix ex: <http://example.org/stuff/1.0/> .
 @base <urn:example-view-schema/>
 
+:AddressColoring a vs:NodeStyling ;
+	vs:matcher [
+		rdf:predicate rdf:type ;
+		rdf:object ex:Address
+	] ;
+	vs:priority 1 ;
+	vs:color "blue" .
+
 :AddressProperty a vs:PredicateRenaming ;
 	vs:matcher [
 		rdf:predicate ex:address

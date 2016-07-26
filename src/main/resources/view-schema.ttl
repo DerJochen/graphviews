@@ -6,22 +6,24 @@
 
 :GraphModification a owl:Class .
 
-:StatementRemoval a owl:Class ;
-	rdfs:subClassOf :GraphModification .
-
 :NodeRenaming a owl:Class ;
 	rdfs:subClassOf :GraphModification .
 
 :PredicateRenaming a owl:Class ;
 	rdfs:subClassOf :GraphModification .
 
-:replaces a owl:ObjectProperty .
+:StatementRemoval a owl:Class ;
+	rdfs:subClassOf :GraphModification .
+
+:color a owl:Property .
 
 :matcher a owl:ObjectProperty .
 
-:subjectType a owl:ObjectProperty .
-
 :priority a owl:LiteralProperty .
+
+:replaces a owl:ObjectProperty .
+
+:subjectType a owl:ObjectProperty .
 
 :value a owl:LiteralProperty .
 

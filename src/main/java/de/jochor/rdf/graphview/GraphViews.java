@@ -24,12 +24,14 @@ import org.apache.jena.vocabulary.RDF;
 
 import de.jochor.rdf.graphview.modification.GraphModification;
 import de.jochor.rdf.graphview.modification.NodeRenaming;
+import de.jochor.rdf.graphview.modification.NodeStyling;
 import de.jochor.rdf.graphview.modification.PredicateRenaming;
 import de.jochor.rdf.graphview.modification.StatementRemoval;
 import de.jochor.rdf.graphview.vocabulary.ViewSchema;
 import info.leadinglight.jdot.Edge;
 import info.leadinglight.jdot.Graph;
 import info.leadinglight.jdot.Node;
+import info.leadinglight.jdot.enums.Style;
 
 /**
  * Primary class of the GraphView project.
@@ -96,6 +98,7 @@ public class GraphViews {
 
 		findGraphModifications(ViewSchema.StatementRemoval, StatementRemoval.class, schemaModel, graphModifications);
 		findGraphModifications(ViewSchema.NodeRenaming, NodeRenaming.class, schemaModel, graphModifications);
+		findGraphModifications(ViewSchema.NodeStyling, NodeStyling.class, schemaModel, graphModifications);
 		findGraphModifications(ViewSchema.PredicateRenaming, PredicateRenaming.class, schemaModel, graphModifications);
 
 		createView(dataFile, graphModifications, targetFolder, false);
@@ -163,15 +166,37 @@ public class GraphViews {
 				}
 			}
 
+			Resource subject = statement.getSubject();
+			Property predicate = statement.getPredicate();
+			RDFNode object = statement.getObject();
+
+			ArrayList<GraphModification> nodeStylings = relevantGraphModifications.get(NodeStyling.class);
+			if (nodeStylings != null) {
+				String subjectColor = null;
+
+				for (int i = 0; i < nodeStylings.size(); i++) {
+					NodeStyling nodeStyling = (NodeStyling) nodeStylings.get(i);
+
+					String newSubjectColor = nodeStyling.getColor();
+					if (subjectColor != null && newSubjectColor != null && !subjectColor.equals(newSubjectColor)) {
+						throw new IllegalStateException("Duplicate coloring of " + subject);
+					}
+					subjectColor = newSubjectColor;
+				}
+
+				if (subjectColor != null) {
+					Node subjectNode = dotGraph.getNode(subject.getURI(), true);
+					subjectNode.setColor(subjectColor);
+					subjectNode.setStyle(Style.Node.filled);
+				}
+			}
+
 			ArrayList<GraphModification> statementRemovals = relevantGraphModifications.get(StatementRemoval.class);
 			if (statementRemovals != null) {
 				continue;
 			}
 
-			Resource subject = statement.getSubject();
 			dotGraph.getNode(subject.getURI(), true);
-			Property predicate = statement.getPredicate();
-			RDFNode object = statement.getObject();
 			if (object.isURIResource()) {
 				handleResource(relevantGraphModifications, dotGraph, subject, predicate, object);
 			} else if (object.isLiteral()) {
@@ -232,7 +257,6 @@ public class GraphViews {
 		}
 
 		String predicateLabel = null;
-
 		ArrayList<GraphModification> predicaateRenamings = relevantGraphModifications.get(PredicateRenaming.class);
 		if (predicaateRenamings != null) {
 			if (predicaateRenamings.size() > 1) {

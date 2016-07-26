@@ -11,6 +11,14 @@
 	vs:priority 1 ;
 	vs:valuePattern foaf:name .
 
+:PersonColoring a vs:NodeStyling ;
+	vs:matcher [
+		rdf:predicate rdf:type ;
+		rdf:object foaf:Person
+	] ;
+	vs:priority 1 ;
+	vs:color "green" .
+
 :PersonName a vs:PredicateRenaming ;
 	vs:matcher [
 		rdf:predicate foaf:name

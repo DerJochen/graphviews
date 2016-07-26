@@ -19,7 +19,7 @@ import de.jochor.rdf.graphview.renaming.RenamingPart;
 import de.jochor.rdf.graphview.vocabulary.ViewSchema;
 
 /**
- * Predicate renaming rule.
+ * Node renaming rule.
  *
  * <p>
  * <b>Started:</b> 2016-07-07

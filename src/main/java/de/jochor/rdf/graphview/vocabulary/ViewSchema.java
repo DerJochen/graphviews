@@ -30,9 +30,11 @@ public class ViewSchema {
 
 	public static final Resource GraphModification = resource("GraphModification");
 	public static final Resource NodeRenaming = resource("NodeRenaming");
+	public static final Resource NodeStyling = resource("NodeStyling");
 	public static final Resource PredicateRenaming = resource("PredicateRenaming");
 	public static final Resource StatementRemoval = resource("StatementRemoval");
 
+	public static final Property color = property("color");
 	public static final Property matcher = property("matcher");
 	public static final Property objectType = property("objectType");
 	public static final Property priority = property("priority");
