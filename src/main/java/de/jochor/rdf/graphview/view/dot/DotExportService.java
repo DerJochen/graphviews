@@ -10,6 +10,7 @@ import java.util.Stack;
 import de.jochor.rdf.graphview.model.Edge;
 import de.jochor.rdf.graphview.model.Graph;
 import de.jochor.rdf.graphview.model.Node;
+import info.leadinglight.jdot.enums.Style;
 
 /**
  * Service that exports a graph to a dot file.
@@ -38,8 +39,8 @@ public class DotExportService {
 	}
 
 	private void writeGraph(Graph graph, Stack<String> stack, Path targetFolder) throws IOException {
-		String name = graph.getName();
-		stack.push(name);
+		String graphName = graph.getName();
+		stack.push(graphName);
 
 		info.leadinglight.jdot.Graph dotGraph = new info.leadinglight.jdot.Graph();
 
@@ -47,11 +48,30 @@ public class DotExportService {
 
 		HashSet<Edge> edges = graph.getEdges();
 		for (Edge edge : edges) {
-			;
-			// TODO add graph elements to dot graph
-		}
+			String label = edge.getLabel();
+			Node node1 = edge.getNode1();
+			Node node2 = edge.getNode2();
 
-		// TODO add graph elements to dot graph
+			info.leadinglight.jdot.Edge dotEdge = new info.leadinglight.jdot.Edge(node1.getName(), node2.getName());
+			dotEdge.setLabel(label);
+			dotGraph.addEdge(dotEdge);
+
+			nodesToAdd.add(node1);
+			nodesToAdd.add(node2);
+		}
+		for (Node node : nodesToAdd) {
+			String name = node.getName();
+			String label = node.getLabel();
+
+			info.leadinglight.jdot.Node dotNode = new info.leadinglight.jdot.Node(name);
+			dotNode.setLabel(label);
+			if (node.getColor() != null) {
+				dotNode.setFillColor(node.getColor());
+				dotNode.setStyle(Style.Node.filled);
+			}
+
+			dotGraph.addNode(dotNode);
+		}
 
 		Path filePath = createFilePath(targetFolder, stack);
 		String dotString = dotGraph.toDot();
