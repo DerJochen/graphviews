@@ -30,4 +30,13 @@ public class Graph {
 
 	private final String name;
 
+	public Node useNode(String name) {
+		Node node = nameToNodeMap.get(name);
+		if (node == null) {
+			node = new Node(name);
+			nameToNodeMap.put(name, node);
+		}
+		return node;
+	}
+
 }

@@ -1,5 +1,8 @@
 package de.jochor.rdf.graphview.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -19,10 +22,12 @@ import lombok.Setter;
 @Setter
 public class Edge {
 
-	private Node node1;
+	private final HashMap<String, ArrayList<String>> attributes = new HashMap<>();
 
-	private Node node2;
+	private final String label;
 
-	private String label;
+	private final Node node1;
+
+	private final Node node2;
 
 }

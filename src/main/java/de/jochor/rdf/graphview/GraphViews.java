@@ -4,11 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.apache.jena.rdf.model.Literal;
@@ -22,16 +19,16 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDF;
 
+import de.jochor.rdf.graphview.model.Edge;
+import de.jochor.rdf.graphview.model.Graph;
+import de.jochor.rdf.graphview.model.Node;
 import de.jochor.rdf.graphview.modification.GraphModification;
 import de.jochor.rdf.graphview.modification.NodeRenaming;
 import de.jochor.rdf.graphview.modification.NodeStyling;
 import de.jochor.rdf.graphview.modification.PredicateRenaming;
 import de.jochor.rdf.graphview.modification.StatementRemoval;
+import de.jochor.rdf.graphview.view.dot.DotExportService;
 import de.jochor.rdf.graphview.vocabulary.ViewSchema;
-import info.leadinglight.jdot.Edge;
-import info.leadinglight.jdot.Graph;
-import info.leadinglight.jdot.Node;
-import info.leadinglight.jdot.enums.Style;
 
 /**
  * Primary class of the GraphView project.
@@ -144,8 +141,7 @@ public class GraphViews {
 		Model data = ModelFactory.createDefaultModel();
 		data.read(Files.newInputStream(dataFile), "", "TTL");
 
-		Graph dotGraph = new Graph();
-		HashMap<String, HashMap<String, ArrayList<String>>> attributes = plain ? null : new HashMap<>();
+		Graph graph = new Graph("main");
 
 		// TODO Statement state with applicable modifications and a collision check.
 		HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications = new HashMap<>();
@@ -185,9 +181,8 @@ public class GraphViews {
 				}
 
 				if (subjectColor != null) {
-					Node subjectNode = dotGraph.getNode(subject.getURI(), true);
+					Node subjectNode = graph.useNode(subject.getURI());
 					subjectNode.setColor(subjectColor);
-					subjectNode.setStyle(Style.Node.filled);
 				}
 			}
 
@@ -196,27 +191,21 @@ public class GraphViews {
 				continue;
 			}
 
-			dotGraph.getNode(subject.getURI(), true);
 			if (object.isURIResource()) {
-				handleResource(relevantGraphModifications, dotGraph, subject, predicate, object);
+				handleResource(relevantGraphModifications, graph, subject, predicate, object);
 			} else if (object.isLiteral()) {
-				handleLiteral(relevantGraphModifications, dotGraph, subject, predicate, object, attributes);
+				handleLiteral(relevantGraphModifications, graph, subject, predicate, object, plain);
 			} else {
 				// TODO Implement support for anon nodes
 				throw new UnsupportedOperationException("Anon nodes are not yet supported");
 			}
 		}
 
-		if (attributes != null) {
-			createTooltips(dotGraph, attributes);
-		}
-
-		Path targetFile = Files.createDirectories(targetFolder).resolve("graph.dot");
-		String dotString = dotGraph.toDot();
-		Files.write(targetFile, dotString.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		DotExportService dotExportService = new DotExportService();
+		dotExportService.export(graph, targetFolder);
 	}
 
-	private void handleResource(HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications, Graph dotGraph,
+	private void handleResource(HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications, Graph graph,
 			Resource subject, Property predicate, RDFNode object) {
 		Resource objectResource = object.asResource();
 
@@ -224,8 +213,8 @@ public class GraphViews {
 		String predicateName = predicate.getURI();
 		String objectName = objectResource.getURI();
 
-		Node subjectNode = dotGraph.getNode(subjectName, true);
-		Node objectNode = dotGraph.getNode(objectName, true);
+		Node subjectNode = graph.useNode(subjectName);
+		Node objectNode = graph.useNode(objectName);
 
 		ArrayList<GraphModification> nodeRenamings = relevantGraphModifications.get(NodeRenaming.class);
 		if (nodeRenamings != null) {
@@ -256,7 +245,7 @@ public class GraphViews {
 			}
 		}
 
-		String predicateLabel = null;
+		String predicateLabel = predicate.getLocalName();
 		ArrayList<GraphModification> predicaateRenamings = relevantGraphModifications.get(PredicateRenaming.class);
 		if (predicaateRenamings != null) {
 			if (predicaateRenamings.size() > 1) {
@@ -266,26 +255,28 @@ public class GraphViews {
 			predicateLabel = predicateRenaming.getValue();
 		}
 
-		dotGraph.getNode(objectName, true);
+		Edge edge = new Edge(predicateLabel, subjectNode, objectNode);
 
-		Edge edge = new Edge(subjectName, objectName);
-		dotGraph.addEdge(edge);
-		if (predicateLabel == null) {
-			predicateLabel = predicate.getLocalName();
+		HashMap<String, ArrayList<String>> edgeAttributes = edge.getAttributes();
+		ArrayList<String> attributeData = edgeAttributes.get("_Term_");
+		if (attributeData == null) {
+			attributeData = new ArrayList<>();
+			edgeAttributes.put("_Term_", attributeData);
 		}
-		edge.setLabel(predicateLabel);
-		edge.setToolTip("_Term_: " + predicateName);
+		attributeData.add(predicateName);
+
+		graph.getEdges().add(edge);
 	}
 
-	private void handleLiteral(HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications, Graph dotGraph,
-			Resource subject, Property predicate, RDFNode object, HashMap<String, HashMap<String, ArrayList<String>>> attributes) {
+	private void handleLiteral(HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications, Graph graph,
+			Resource subject, Property predicate, RDFNode object, boolean plain) {
 		Literal literal = object.asLiteral();
 
 		String subjectName = subject.getURI();
 		String predicateName = predicate.getURI();
-		String literalValue = literal.getValue().toString();
+		String literalValue = literal.getLexicalForm();
 
-		Node subjectNode = dotGraph.getNode(subjectName, true);
+		Node subjectNode = graph.useNode(subjectName);
 
 		String predicateLabel = predicateName;
 
@@ -308,20 +299,15 @@ public class GraphViews {
 			predicateLabel = predicateRenaming.getValue();
 		}
 
-		if (attributes == null) {
+		if (plain) {
 			String objectName = UUID.randomUUID().toString();
-			Node objectNode = dotGraph.getNode(objectName, true);
+			Node objectNode = graph.useNode(objectName);
 			objectNode.setLabel(literalValue);
 
-			Edge edge = new Edge(subjectName, objectName);
-			edge.setLabel(predicateLabel);
-			dotGraph.addEdge(edge);
+			Edge edge = new Edge(predicateLabel, subjectNode, objectNode);
+			graph.getEdges().add(edge);
 		} else {
-			HashMap<String, ArrayList<String>> subjectAttributes = attributes.get(subjectName);
-			if (subjectAttributes == null) {
-				subjectAttributes = new HashMap<>();
-				attributes.put(subjectName, subjectAttributes);
-			}
+			HashMap<String, ArrayList<String>> subjectAttributes = subjectNode.getAttributes();
 			ArrayList<String> attributeData = subjectAttributes.get(predicateLabel);
 			if (attributeData == null) {
 				attributeData = new ArrayList<>();
@@ -330,37 +316,5 @@ public class GraphViews {
 			attributeData.add(literalValue);
 		}
 	}
-
-	private void createTooltips(Graph dotGraph, HashMap<String, HashMap<String, ArrayList<String>>> attributes) {
-		Iterator<Entry<String, HashMap<String, ArrayList<String>>>> iter = attributes.entrySet().iterator();
-		while (iter.hasNext()) {
-			Entry<String, HashMap<String, ArrayList<String>>> entry = iter.next();
-
-			HashMap<String, ArrayList<String>> subjectAttributes = entry.getValue();
-			StringBuilder sb = new StringBuilder();
-			String nl = "";
-			Iterator<Entry<String, ArrayList<String>>> iter2 = subjectAttributes.entrySet().iterator();
-			while (iter2.hasNext()) {
-				Entry<String, ArrayList<String>> entry2 = iter2.next();
-				String attributeName = entry2.getKey();
-				ArrayList<String> values = entry2.getValue();
-				String value = String.join(", ", values);
-				sb.append(nl).append(attributeName).append(": ").append(value);
-				nl = System.lineSeparator();
-			}
-
-			String subjectName = entry.getKey();
-			Node subjectNode = dotGraph.getNode(subjectName);
-			subjectNode.setToolTip(sb.toString());
-		}
-	}
-
-	// digraph {
-	// "http://www.jochor.de/demo/person/1" [label="Jochen Hormes"]
-	// "http://www.jochor.de/demo/person/1" ->
-	// "http://www.jochor.de/demo/address/1" [label="lives at"]
-	// "http://www.jochor.de/demo/address/1"
-	// [label="42 Demo Street, 12345 Demo"]
-	// }
 
 }
