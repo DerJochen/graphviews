@@ -49,7 +49,7 @@ public class DotExportService {
 
 		info.leadinglight.jdot.Graph dotGraph = new info.leadinglight.jdot.Graph();
 
-		HashSet<Node> nodesToAdd = new HashSet<>();
+		HashSet<Node> nodesToAdd = new HashSet<>(graph.getNodes());
 
 		Set<Edge> edges = graph.getEdges();
 		for (Edge edge : edges) {

@@ -190,6 +190,7 @@ public class GraphViews {
 				if (subjectColor != null) {
 					NodeImpl subjectNode = graph.useNode(subject.getURI());
 					subjectNode.setColor(subjectColor);
+					graph.getNodes().add(subjectNode);
 				}
 			}
 
@@ -320,6 +321,8 @@ public class GraphViews {
 				subjectAttributes.put(predicateLabel, attributeData);
 			}
 			attributeData.add(literalValue);
+
+			graph.getNodes().add(subjectNode);
 		}
 	}
 

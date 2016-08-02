@@ -22,13 +22,15 @@ import lombok.Setter;
 @Setter
 public class GraphImpl implements Graph {
 
-	private final HashSet<Graph> graphs = new HashSet<>();
+	private final String name;
 
-	private final HashMap<String, Node> nameToNodeMap = new HashMap<>();
+	private final HashSet<Graph> graphs = new HashSet<>();
 
 	private final HashSet<Edge> edges = new HashSet<>();
 
-	private final String name;
+	private final HashSet<Node> nodes = new HashSet<>();
+
+	private final HashMap<String, Node> nameToNodeMap = new HashMap<>();
 
 	/**
 	 * {@inheritDoc}

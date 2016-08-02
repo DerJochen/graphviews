@@ -21,6 +21,8 @@ public interface Graph {
 
 	Set<Edge> getEdges();
 
+	Set<Node> getNodes();
+
 	Map<String, Node> getNameToNodeMap();
 
 	Node useNode(String name);

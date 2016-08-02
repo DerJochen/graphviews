@@ -3,6 +3,7 @@ package de.jochor.rdf.graphview.model;
 import java.util.HashMap;
 import java.util.List;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -20,6 +21,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode(of = "name")
 public class NodeImpl implements Node {
 
 	private final HashMap<String, List<String>> attributes = new HashMap<>();
