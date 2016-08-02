@@ -1,0 +1,9 @@
+@prefix : <urn:rdf-syntax-ignore/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix vs: <http://www.jochor.de/view-schema/0.1/> .
+@base <urn:rdf-syntax-ignore/>
+
+:IgnoreTypes a vs:StatementRemoval ;
+	vs:matcher [
+		rdf:predicate rdf:type
+	] .

@@ -1,0 +1,30 @@
+@prefix : <http://www.jochor.de/view-schema/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@base <http://www.jochor.de/view-schema/0.1/> .
+
+:GraphModification a owl:Class .
+
+:NodeRenaming a owl:Class ;
+	rdfs:subClassOf :GraphModification .
+
+:PredicateRenaming a owl:Class ;
+	rdfs:subClassOf :GraphModification .
+
+:StatementRemoval a owl:Class ;
+	rdfs:subClassOf :GraphModification .
+
+:color a owl:Property .
+
+:matcher a owl:ObjectProperty .
+
+:priority a owl:LiteralProperty .
+
+:replaces a owl:ObjectProperty .
+
+:subjectType a owl:ObjectProperty .
+
+:value a owl:LiteralProperty .
+
+:valuePattern a owl:Property .

@@ -2,43 +2,65 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>graphviews</artifactId>
+	<artifactId>graphviews-pom</artifactId>
 	<groupId>de.jochor.rdf</groupId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
 	<parent>
 		<groupId>de.jochor.maven</groupId>
 		<artifactId>public-super-pom</artifactId>
 		<version>0.1.0</version>
+		<relativePath />
 	</parent>
+	
+	<modules>
+		<module>graphviews-api</module>
+		<module>graphviews-core</module>
+		<module>graphviews-dot</module>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.jena</groupId>
-			<artifactId>apache-jena-libs</artifactId>
-			<type>pom</type>
-			<version>3.1.0</version>
-		</dependency>
+		<module>graphviews-demo</module>
+	</modules>
 
-		<!-- https://mvnrepository.com/artifact/info.leadinglight/jdot -->
-		<dependency>
-			<groupId>info.leadinglight</groupId>
-			<artifactId>jdot</artifactId>
-			<version>1.0</version>
-		</dependency>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<artifactId>graphviews-api</artifactId>
+				<groupId>de.jochor.rdf</groupId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>graphviews-core</artifactId>
+				<groupId>de.jochor.rdf</groupId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>graphviews-dot</artifactId>
+				<groupId>de.jochor.rdf</groupId>
+				<version>${project.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.apache.jena</groupId>
+				<artifactId>apache-jena-libs</artifactId>
+				<version>3.1.0</version>
+				<type>pom</type>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>1.16.6</version>
+			</dependency>
 
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.16.6</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/junit/junit -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-		</dependency>
-	</dependencies>
+			<!-- https://mvnrepository.com/artifact/junit/junit -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<pluginManagement>

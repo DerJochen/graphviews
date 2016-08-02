@@ -1,0 +1,27 @@
+@prefix : <urn:foaf-view-schema/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix vs: <http://www.jochor.de/view-schema/0.1/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@base <urn:foaf-view-schema/>
+
+:PersonRenaming a vs:NodeRenaming ;
+	vs:matcher [
+		vs:subjectType foaf:Person
+	] ;
+	vs:priority 1 ;
+	vs:valuePattern foaf:name .
+
+:PersonColoring a vs:NodeStyling ;
+	vs:matcher [
+		rdf:predicate rdf:type ;
+		rdf:object foaf:Person
+	] ;
+	vs:priority 1 ;
+	vs:color "green" .
+
+:PersonName a vs:PredicateRenaming ;
+	vs:matcher [
+		rdf:predicate foaf:name
+	] ;
+	vs:priority 1 ;
+	vs:value "Full Name" .

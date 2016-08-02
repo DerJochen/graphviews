@@ -1,0 +1,32 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex: <http://example.org/stuff/1.0/> .
+
+<http://www.jochor.de/demo/person/1> a foaf:Person ;
+	foaf:name "Jochen Hormes" ;
+	ex:address <http://www.jochor.de/demo/address/1> ;
+	foaf:knows <http://www.jochor.de/demo/person/2> .
+
+<http://www.jochor.de/demo/address/1> a ex:Address ;
+	ex:street "Demo Street" ;
+	ex:number 42 ;
+	ex:city <http://www.jochor.de/demo/city/1> .
+
+<http://www.jochor.de/demo/person/2> a foaf:Person ;
+	foaf:name "John Dow" ;
+	ex:address <http://www.jochor.de/demo/address/2> .
+
+<http://www.jochor.de/demo/address/2> a ex:Address ;
+	ex:street "Demo Street" ;
+	ex:number 23 ;
+	ex:city <http://www.jochor.de/demo/city/1> .
+
+<http://www.jochor.de/demo/person/3> a foaf:Person ;
+	foaf:name "Demo Person" ;
+	ex:address <http://www.jochor.de/demo/address/1> .
+
+<http://www.jochor.de/demo/city/1> a ex:City ;
+	ex:postalcode 12345 ;
+	ex:name "Demo" .
+	
