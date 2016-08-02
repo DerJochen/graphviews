@@ -13,14 +13,6 @@ public class GraphViewTest {
 
 	private static final Path dataFile = Paths.get("src/test/resources/demo.ttl");
 
-	private static final Path defaultTarget = Paths.get("target/default");
-
-	private static final Path plainTarget = Paths.get("target/plain");
-
-	private static final Path schemaTarget = Paths.get("target/withSchema");
-
-	private static final Path schemaTarget2 = Paths.get("target/withSchema2");
-
 	private GraphViews graphView;
 
 	@Before
