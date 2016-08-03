@@ -11,7 +11,7 @@
 		<groupId>de.jochor.maven</groupId>
 		<artifactId>public-super-pom</artifactId>
 		<version>0.1.0</version>
-		<relativePath />
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	
 	<modules>
@@ -21,6 +21,12 @@
 
 		<module>graphviews-demo</module>
 	</modules>
+
+	<properties>
+		<version.jena>3.1.0</version.jena>
+		<version.lombok>1.16.6</version.lombok>
+		<version.junit>4.12</version.junit>
+	</properties>
 
 	<dependencyManagement>
 		<dependencies>
@@ -43,21 +49,21 @@
 			<dependency>
 				<groupId>org.apache.jena</groupId>
 				<artifactId>apache-jena-libs</artifactId>
-				<version>3.1.0</version>
+				<version>${}</version>
 				<type>pom</type>
 			</dependency>
 			
 			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
-				<version>1.16.6</version>
+				<version>${version.lombok}</version>
 			</dependency>
 
 			<!-- https://mvnrepository.com/artifact/junit/junit -->
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.12</version>
+				<version>${version.junit}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -72,11 +78,58 @@
 						<target>1.8</target>
 					</configuration>
 				</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.5.201505241946</version>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
 
 	<repositories>
+		<!-- Source of the parent pom -->
 		<repository>
 			<id>jochor-public-releases</id>
 			<url>http://maven.jochor.de/content/repositories/public-releases/</url>
