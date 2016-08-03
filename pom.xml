@@ -49,7 +49,7 @@
 			<dependency>
 				<groupId>org.apache.jena</groupId>
 				<artifactId>apache-jena-libs</artifactId>
-				<version>${}</version>
+				<version>${version.jena}</version>
 				<type>pom</type>
 			</dependency>
 			
