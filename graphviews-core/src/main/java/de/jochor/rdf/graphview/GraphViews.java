@@ -96,7 +96,7 @@ public class GraphViews {
 		ArrayList<GraphModification> graphModifications = new ArrayList<>();
 
 		for (Path schemaFile : schemaFiles) {
-			readGraphModifications(schemaFile, graphModifications, schemaModel);
+			readGraphModifications(schemaFile, schemaModel);
 		}
 
 		findGraphModifications(ViewSchema.StatementRemoval, StatementRemoval.class, schemaModel, graphModifications);
@@ -108,7 +108,7 @@ public class GraphViews {
 		return graph;
 	}
 
-	private void readGraphModifications(Path schemaFile, ArrayList<GraphModification> graphModifications, Model schemaModel) throws IOException {
+	private void readGraphModifications(Path schemaFile, Model schemaModel) throws IOException {
 		if (!Files.isReadable(schemaFile)) {
 			throw new IllegalArgumentException("File " + schemaFile + " is not readable");
 		}
@@ -151,48 +151,18 @@ public class GraphViews {
 		GraphImpl graph = new GraphImpl("main");
 
 		// TODO Statement state with applicable modifications and a collision check.
-		HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications = new HashMap<>();
 		StmtIterator stmtIterator = data.listStatements();
 		while (stmtIterator.hasNext()) {
 			Statement statement = stmtIterator.next();
 
-			relevantGraphModifications.clear();
-			for (GraphModification graphModification : graphModifications) {
-				if (graphModification.handles(statement)) {
-					Class<? extends GraphModification> type = graphModification.getClass();
-					ArrayList<GraphModification> modifications = relevantGraphModifications.get(type);
-					if (modifications == null) {
-						modifications = new ArrayList<>();
-						relevantGraphModifications.put(type, modifications);
-					}
-					modifications.add(graphModification);
-				}
-			}
+			HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications = findRelevantGraphModifications(
+					graphModifications, statement);
 
 			Resource subject = statement.getSubject();
 			Property predicate = statement.getPredicate();
 			RDFNode object = statement.getObject();
 
-			ArrayList<GraphModification> nodeStylings = relevantGraphModifications.get(NodeStyling.class);
-			if (nodeStylings != null) {
-				String subjectColor = null;
-
-				for (int i = 0; i < nodeStylings.size(); i++) {
-					NodeStyling nodeStyling = (NodeStyling) nodeStylings.get(i);
-
-					String newSubjectColor = nodeStyling.getColor();
-					if (subjectColor != null && newSubjectColor != null && !subjectColor.equals(newSubjectColor)) {
-						throw new IllegalStateException("Duplicate coloring of " + subject);
-					}
-					subjectColor = newSubjectColor;
-				}
-
-				if (subjectColor != null) {
-					NodeImpl subjectNode = graph.useNode(subject.getURI());
-					subjectNode.setColor(subjectColor);
-					graph.getNodes().add(subjectNode);
-				}
-			}
+			handleNodeStylings(subject, graph, relevantGraphModifications);
 
 			ArrayList<GraphModification> statementRemovals = relevantGraphModifications.get(StatementRemoval.class);
 			if (statementRemovals != null) {
@@ -212,6 +182,47 @@ public class GraphViews {
 		return graph;
 	}
 
+	private HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> findRelevantGraphModifications(
+			ArrayList<GraphModification> graphModifications, Statement statement) {
+		HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications = new HashMap<>();
+		for (GraphModification graphModification : graphModifications) {
+			if (graphModification.handles(statement)) {
+				Class<? extends GraphModification> type = graphModification.getClass();
+				ArrayList<GraphModification> modifications = relevantGraphModifications.get(type);
+				if (modifications == null) {
+					modifications = new ArrayList<>();
+					relevantGraphModifications.put(type, modifications);
+				}
+				modifications.add(graphModification);
+			}
+		}
+		return relevantGraphModifications;
+	}
+
+	private void handleNodeStylings(Resource subject, GraphImpl graph,
+			HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications) {
+		ArrayList<GraphModification> nodeStylings = relevantGraphModifications.get(NodeStyling.class);
+		if (nodeStylings != null) {
+			String subjectColor = null;
+
+			for (int i = 0; i < nodeStylings.size(); i++) {
+				NodeStyling nodeStyling = (NodeStyling) nodeStylings.get(i);
+
+				String newSubjectColor = nodeStyling.getColor();
+				if (subjectColor != null && newSubjectColor != null && !subjectColor.equals(newSubjectColor)) {
+					throw new IllegalStateException("Duplicate coloring of " + subject);
+				}
+				subjectColor = newSubjectColor;
+			}
+
+			if (subjectColor != null) {
+				NodeImpl subjectNode = graph.useNode(subject.getURI());
+				subjectNode.setColor(subjectColor);
+				graph.getNodes().add(subjectNode);
+			}
+		}
+	}
+
 	private void handleResource(HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications, GraphImpl graph,
 			Resource subject, Property predicate, RDFNode object) {
 		Resource objectResource = object.asResource();
@@ -223,44 +234,9 @@ public class GraphViews {
 		NodeImpl subjectNode = graph.useNode(subjectName);
 		NodeImpl objectNode = graph.useNode(objectName);
 
-		ArrayList<GraphModification> nodeRenamings = relevantGraphModifications.get(NodeRenaming.class);
-		if (nodeRenamings != null) {
-			String subjectLabel = null;
-			String objectLabel = null;
+		handleNodeRenamings(subject, subjectNode, object, objectNode, relevantGraphModifications);
 
-			for (int i = 0; i < nodeRenamings.size(); i++) {
-				NodeRenaming nodeRenaming = (NodeRenaming) nodeRenamings.get(i);
-
-				String newSubjectLabel = nodeRenaming.getNewName(subject);
-				if (subjectLabel != null && newSubjectLabel != null && !subjectLabel.equals(newSubjectLabel)) {
-					throw new IllegalStateException("Duplicate renaming of " + subject);
-				}
-				subjectLabel = newSubjectLabel;
-
-				String newObjectLabel = nodeRenaming.getNewName(object.asResource());
-				if (objectLabel != null && newObjectLabel != null && !objectLabel.equals(newObjectLabel)) {
-					throw new IllegalStateException("Duplicate renaming of " + object);
-				}
-				objectLabel = newObjectLabel;
-			}
-
-			if (subjectLabel != null) {
-				subjectNode.setLabel(subjectLabel);
-			}
-			if (objectLabel != null) {
-				objectNode.setLabel(objectLabel);
-			}
-		}
-
-		String predicateLabel = predicate.getLocalName();
-		ArrayList<GraphModification> predicaateRenamings = relevantGraphModifications.get(PredicateRenaming.class);
-		if (predicaateRenamings != null) {
-			if (predicaateRenamings.size() > 1) {
-				throw new IllegalStateException("Overlapping " + GraphModification.class.getSimpleName() + "s");
-			}
-			PredicateRenaming predicateRenaming = (PredicateRenaming) predicaateRenamings.get(0);
-			predicateLabel = predicateRenaming.getValue();
-		}
+		String predicateLabel = handlePredicateRenamings(predicate, relevantGraphModifications);
 
 		EdgeImpl edge = new EdgeImpl(predicateLabel, subjectNode, objectNode);
 
@@ -324,6 +300,52 @@ public class GraphViews {
 
 			graph.getNodes().add(subjectNode);
 		}
+	}
+
+	private void handleNodeRenamings(Resource subject, NodeImpl subjectNode, RDFNode object, NodeImpl objectNode,
+			HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications) {
+		ArrayList<GraphModification> nodeRenamings = relevantGraphModifications.get(NodeRenaming.class);
+		if (nodeRenamings != null) {
+			String subjectLabel = null;
+			String objectLabel = null;
+
+			for (int i = 0; i < nodeRenamings.size(); i++) {
+				NodeRenaming nodeRenaming = (NodeRenaming) nodeRenamings.get(i);
+
+				String newSubjectLabel = nodeRenaming.getNewName(subject);
+				if (subjectLabel != null && newSubjectLabel != null && !subjectLabel.equals(newSubjectLabel)) {
+					throw new IllegalStateException("Duplicate renaming of " + subject);
+				}
+				subjectLabel = newSubjectLabel;
+
+				String newObjectLabel = nodeRenaming.getNewName(object.asResource());
+				if (objectLabel != null && newObjectLabel != null && !objectLabel.equals(newObjectLabel)) {
+					throw new IllegalStateException("Duplicate renaming of " + object);
+				}
+				objectLabel = newObjectLabel;
+			}
+
+			if (subjectLabel != null) {
+				subjectNode.setLabel(subjectLabel);
+			}
+			if (objectLabel != null) {
+				objectNode.setLabel(objectLabel);
+			}
+		}
+	}
+
+	private String handlePredicateRenamings(Property predicate,
+			HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications) {
+		String predicateLabel = predicate.getLocalName();
+		ArrayList<GraphModification> predicaateRenamings = relevantGraphModifications.get(PredicateRenaming.class);
+		if (predicaateRenamings != null) {
+			if (predicaateRenamings.size() > 1) {
+				throw new IllegalStateException("Overlapping " + GraphModification.class.getSimpleName() + "s");
+			}
+			PredicateRenaming predicateRenaming = (PredicateRenaming) predicaateRenamings.get(0);
+			predicateLabel = predicateRenaming.getValue();
+		}
+		return predicateLabel;
 	}
 
 }
