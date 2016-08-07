@@ -19,24 +19,7 @@ public class ViewSchema {
 	/**
 	 * The namespace of the vocabulary as a string
 	 */
-	public static final String uri = "http://www.jochor.de/view-schema/0.1/";
-
-	/**
-	 * returns the URI for this schema
-	 *
-	 * @return the URI for this schema
-	 */
-	public static String getURI() {
-		return uri;
-	}
-
-	protected static final Resource resource(String local) {
-		return ResourceFactory.createResource(uri + local);
-	}
-
-	protected static final Property property(String local) {
-		return ResourceFactory.createProperty(uri, local);
-	}
+	public static final String URI = "http://www.jochor.de/view-schema/0.1/";
 
 	public static final Resource GraphModification = resource("GraphModification");
 	public static final Resource NodeRenaming = resource("NodeRenaming");
@@ -52,5 +35,22 @@ public class ViewSchema {
 	public static final Property subjectType = property("subjectType");
 	public static final Property value = property("value");
 	public static final Property valuePattern = property("valuePattern");
+
+	/**
+	 * returns the URI for this schema
+	 *
+	 * @return the URI for this schema
+	 */
+	public static String getURI() {
+		return URI;
+	}
+
+	protected static final Resource resource(String local) {
+		return ResourceFactory.createResource(URI + local);
+	}
+
+	protected static final Property property(String local) {
+		return ResourceFactory.createProperty(URI, local);
+	}
 
 }

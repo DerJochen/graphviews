@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Stack;
 
 import de.jochor.rdf.graphview.model.Edge;
 import de.jochor.rdf.graphview.model.Graph;
@@ -40,10 +41,10 @@ public class DotExportService {
 	 */
 	public void export(Graph graph, Path targetFolder) throws IOException {
 		Files.createDirectories(targetFolder);
-		writeGraph(graph, new Stack<String>(), targetFolder);
+		writeGraph(graph, new ArrayDeque<String>(), targetFolder);
 	}
 
-	private void writeGraph(Graph graph, Stack<String> stack, Path targetFolder) throws IOException {
+	private void writeGraph(Graph graph, Deque<String> stack, Path targetFolder) throws IOException {
 		String graphName = graph.getName();
 		stack.push(graphName);
 
@@ -127,7 +128,7 @@ public class DotExportService {
 		return toolTip;
 	}
 
-	private Path createFilePath(Path targetFolder, Stack<String> stack) {
+	private Path createFilePath(Path targetFolder, Deque<String> stack) {
 		StringBuilder sb = new StringBuilder();
 		for (String name : stack) {
 			sb.append(name).append(" - ");

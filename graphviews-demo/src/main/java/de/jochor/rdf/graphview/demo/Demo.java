@@ -51,6 +51,11 @@ public class Demo {
 
 	private DotExportService dotExportService;
 
+	private Demo() {
+		graphView = new GraphViewsImpl();
+		dotExportService = new DotExportService();
+	}
+
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Demo demo = new Demo();
 
@@ -58,11 +63,6 @@ public class Demo {
 		demo.createView(dataFile, defaultTarget);
 		demo.createModifiedView(dataFile, schemaTarget, exampleViewSchema1, foafViewSchema, rdfSyntaxIgnoreViewSchema);
 		demo.createModifiedView(dataFile, schemaTarget2, exampleViewSchema2, foafViewSchema, rdfSyntaxIgnoreViewSchema);
-	}
-
-	private Demo() {
-		graphView = new GraphViewsImpl();
-		dotExportService = new DotExportService();
 	}
 
 	/**
