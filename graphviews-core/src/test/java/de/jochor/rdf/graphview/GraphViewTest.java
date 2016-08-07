@@ -17,26 +17,26 @@ public class GraphViewTest {
 
 	@Before
 	public void setUp() throws IOException {
-		graphView = new GraphViews();
+		graphView = new GraphViewsImpl();
 	}
 
 	@Test
 	public void testPlainView() throws IOException {
-		graphView.createPlainView(dataFile);
-
-		// TODO check Result
-	}
-
-	@Test
-	public void testDefaultView() throws IOException {
 		graphView.createView(dataFile);
 
 		// TODO check Result
 	}
 
 	@Test
+	public void testDefaultView() throws IOException {
+		graphView.createView(dataFile, true);
+
+		// TODO check Result
+	}
+
+	@Test
 	public void testModifiedView() throws IOException {
-		graphView.createModifiedView(dataFile, Paths.get(SCHEMA_BASE + "example-view-schema.ttl"), Paths.get(SCHEMA_BASE + "foaf-view-schema.ttl"),
+		graphView.createView(dataFile, Paths.get(SCHEMA_BASE + "example-view-schema.ttl"), Paths.get(SCHEMA_BASE + "foaf-view-schema.ttl"),
 				Paths.get(SCHEMA_BASE + "rdf-syntax-ignore.ttl"));
 
 		// TODO check Result
@@ -44,7 +44,7 @@ public class GraphViewTest {
 
 	@Test
 	public void testModifiedView2() throws IOException {
-		graphView.createModifiedView(dataFile, Paths.get(SCHEMA_BASE + "example-view-schema2.ttl"), Paths.get(SCHEMA_BASE + "foaf-view-schema.ttl"),
+		graphView.createView(dataFile, Paths.get(SCHEMA_BASE + "example-view-schema2.ttl"), Paths.get(SCHEMA_BASE + "foaf-view-schema.ttl"),
 				Paths.get(SCHEMA_BASE + "rdf-syntax-ignore.ttl"));
 
 		// TODO check Result

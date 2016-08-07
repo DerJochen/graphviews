@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.regex.Pattern;
 
 import de.jochor.rdf.graphview.GraphViews;
+import de.jochor.rdf.graphview.GraphViewsImpl;
 import de.jochor.rdf.graphview.model.Graph;
 import de.jochor.rdf.graphview.view.dot.DotExportService;
 
@@ -60,7 +61,7 @@ public class Demo {
 	}
 
 	private Demo() {
-		graphView = new GraphViews();
+		graphView = new GraphViewsImpl();
 		dotExportService = new DotExportService();
 	}
 
@@ -76,7 +77,7 @@ public class Demo {
 	 * @throws InterruptedException
 	 */
 	public void createPlainView(Path dataFile, Path targetFolder) throws IOException, InterruptedException {
-		Graph plainView = graphView.createPlainView(dataFile);
+		Graph plainView = graphView.createView(dataFile);
 		dotExportService.export(plainView, targetFolder);
 		createHtml(targetFolder, plainView.getName());
 	}
@@ -93,7 +94,7 @@ public class Demo {
 	 * @throws InterruptedException
 	 */
 	public void createView(Path dataFile, Path targetFolder) throws IOException, InterruptedException {
-		Graph view = graphView.createView(dataFile);
+		Graph view = graphView.createView(dataFile, true);
 		dotExportService.export(view, targetFolder);
 		createHtml(targetFolder, view.getName());
 	}
@@ -113,7 +114,7 @@ public class Demo {
 	 * @throws InterruptedException
 	 */
 	public void createModifiedView(Path dataFile, Path targetFolder, Path... schemaFiles) throws IOException, InterruptedException {
-		Graph modifiedView = graphView.createModifiedView(dataFile, schemaFiles);
+		Graph modifiedView = graphView.createView(dataFile, schemaFiles);
 		dotExportService.export(modifiedView, targetFolder);
 		createHtml(targetFolder, modifiedView.getName());
 	}

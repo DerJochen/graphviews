@@ -40,7 +40,7 @@ import de.jochor.rdf.graphview.vocabulary.ViewSchema;
  * @author Jochen Hormes
  *
  */
-public class GraphViews {
+public class GraphViewsImpl implements GraphViews {
 
 	// TODO Make rules more into modules
 	// TODO Add rule to not only create the label from multiple nodes and remove one or more, but explicitly combine
@@ -49,49 +49,28 @@ public class GraphViews {
 	private static final ArrayList<GraphModification> EMPTY_ARRAY_LIST = new ArrayList<>();
 
 	/**
-	 * Creates a plain view of the data without any graph modifications.
-	 *
-	 * @param dataFile
-	 *            Data to visualize
-	 * @param targetFolder
-	 *            Target folder for the result file(s)
-	 * @throws IOException
-	 *             In case of problems with the dataFile or the target Folder
+	 * {@inheritDoc}
 	 */
-	public GraphImpl createPlainView(Path dataFile) throws IOException {
-		GraphImpl graph = createView(dataFile, EMPTY_ARRAY_LIST, true);
-		return graph;
-	}
-
-	/**
-	 * Creates a graph view of the data with literal nodes mapped to attributes of the graph nodes.
-	 *
-	 * @param dataFile
-	 *            Data to visualize
-	 * @param targetFolder
-	 *            Target folder for the result file(s)
-	 * @throws IOException
-	 *             In case of problems with the dataFile or the target Folder
-	 */
+	@Override
 	public GraphImpl createView(Path dataFile) throws IOException {
 		GraphImpl graph = createView(dataFile, EMPTY_ARRAY_LIST, false);
 		return graph;
 	}
 
 	/**
-	 * Creates a graph view of the data with literal nodes mapped to attributes of the graph nodes and view schema files
-	 * applied.
-	 *
-	 * @param dataFile
-	 *            Data to visualize
-	 * @param targetFolder
-	 *            Target folder for the result file(s)
-	 * @param schemaFiles
-	 *            Schema files to apply to the data
-	 * @throws IOException
-	 *             In case of problems with the dataFile or the target Folder
+	 * {@inheritDoc}
 	 */
-	public GraphImpl createModifiedView(Path dataFile, Path... schemaFiles) throws IOException {
+	@Override
+	public GraphImpl createView(Path dataFile, boolean collapseAttributes) throws IOException {
+		GraphImpl graph = createView(dataFile, EMPTY_ARRAY_LIST, collapseAttributes);
+		return graph;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public GraphImpl createView(Path dataFile, Path... schemaFiles) throws IOException {
 		Model schemaModel = ModelFactory.createDefaultModel();
 		ArrayList<GraphModification> graphModifications = new ArrayList<>();
 
@@ -104,7 +83,7 @@ public class GraphViews {
 		findGraphModifications(ViewSchema.NodeStyling, NodeStyling.class, schemaModel, graphModifications);
 		findGraphModifications(ViewSchema.PredicateRenaming, PredicateRenaming.class, schemaModel, graphModifications);
 
-		GraphImpl graph = createView(dataFile, graphModifications, false);
+		GraphImpl graph = createView(dataFile, graphModifications, true);
 		return graph;
 	}
 
@@ -140,7 +119,7 @@ public class GraphViews {
 		}
 	}
 
-	private GraphImpl createView(Path dataFile, ArrayList<GraphModification> graphModifications, boolean plain) throws IOException {
+	private GraphImpl createView(Path dataFile, ArrayList<GraphModification> graphModifications, boolean collapseAttributes) throws IOException {
 		if (!Files.isReadable(dataFile)) {
 			throw new IllegalArgumentException("File " + dataFile + " is not readable");
 		}
@@ -172,7 +151,7 @@ public class GraphViews {
 			if (object.isURIResource()) {
 				handleResource(relevantGraphModifications, graph, subject, predicate, object);
 			} else if (object.isLiteral()) {
-				handleLiteral(relevantGraphModifications, graph, subject, predicate, object, plain);
+				handleLiteral(relevantGraphModifications, graph, subject, predicate, object, collapseAttributes);
 			} else {
 				// TODO Implement support for anon nodes
 				throw new UnsupportedOperationException("Anon nodes are not yet supported");
@@ -252,7 +231,7 @@ public class GraphViews {
 	}
 
 	private void handleLiteral(HashMap<Class<? extends GraphModification>, ArrayList<GraphModification>> relevantGraphModifications, GraphImpl graph,
-			Resource subject, Property predicate, RDFNode object, boolean plain) {
+			Resource subject, Property predicate, RDFNode object, boolean collapseAttributes) {
 		Literal literal = object.asLiteral();
 
 		String subjectName = subject.getURI();
@@ -282,14 +261,7 @@ public class GraphViews {
 			predicateLabel = predicateRenaming.getValue();
 		}
 
-		if (plain) {
-			String objectName = UUID.randomUUID().toString();
-			NodeImpl objectNode = graph.useNode(objectName);
-			objectNode.setLabel(literalValue);
-
-			EdgeImpl edge = new EdgeImpl(predicateLabel, subjectNode, objectNode);
-			graph.getEdges().add(edge);
-		} else {
+		if (collapseAttributes) {
 			HashMap<String, List<String>> subjectAttributes = subjectNode.getAttributes();
 			List<String> attributeData = subjectAttributes.get(predicateLabel);
 			if (attributeData == null) {
@@ -299,6 +271,13 @@ public class GraphViews {
 			attributeData.add(literalValue);
 
 			graph.getNodes().add(subjectNode);
+		} else {
+			String objectName = UUID.randomUUID().toString();
+			NodeImpl objectNode = graph.useNode(objectName);
+			objectNode.setLabel(literalValue);
+
+			EdgeImpl edge = new EdgeImpl(predicateLabel, subjectNode, objectNode);
+			graph.getEdges().add(edge);
 		}
 	}
 
