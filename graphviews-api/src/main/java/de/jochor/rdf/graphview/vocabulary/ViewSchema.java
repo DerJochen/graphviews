@@ -5,7 +5,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 
 /**
- * TODO
+ * Constant class for the view schema ontology.
  *
  * <p>
  * <b>Started:</b> 2016-07-06
@@ -19,7 +19,7 @@ public class ViewSchema {
 	/**
 	 * The namespace of the vocabulary as a string
 	 */
-	public static final String URI = "http://www.jochor.de/view-schema/0.1/";
+	private static final String URI = "http://www.jochor.de/view-schema/0.1/";
 
 	public static final Resource GraphModification = resource("GraphModification");
 	public static final Resource NodeRenaming = resource("NodeRenaming");
@@ -36,6 +36,9 @@ public class ViewSchema {
 	public static final Property value = property("value");
 	public static final Property valuePattern = property("valuePattern");
 
+	private ViewSchema() {
+	}
+
 	/**
 	 * returns the URI for this schema
 	 *
@@ -45,11 +48,11 @@ public class ViewSchema {
 		return URI;
 	}
 
-	protected static final Resource resource(String local) {
+	private static final Resource resource(String local) {
 		return ResourceFactory.createResource(URI + local);
 	}
 
-	protected static final Property property(String local) {
+	private static final Property property(String local) {
 		return ResourceFactory.createProperty(URI, local);
 	}
 

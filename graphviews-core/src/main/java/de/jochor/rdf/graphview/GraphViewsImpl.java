@@ -46,6 +46,9 @@ public class GraphViewsImpl implements GraphViews {
 	// TODO Add rule to not only create the label from multiple nodes and remove one or more, but explicitly combine
 	// them, so removal is automatic and the attributes are included into the oder node (under a namespace).
 
+	private static final String FORMAT_TTL = "TTL";
+	private static final String EMPTY_STRING = "";
+	private static final String MSG_OVERLAPPING_MODIFICATIONS = "Overlapping " + GraphModification.class.getSimpleName() + "s";
 	private static final ArrayList<GraphModification> EMPTY_ARRAY_LIST = new ArrayList<>();
 
 	/**
@@ -92,7 +95,7 @@ public class GraphViewsImpl implements GraphViews {
 			throw new IllegalArgumentException("File " + schemaFile + " is not readable");
 		}
 
-		schemaModel.read(Files.newInputStream(schemaFile), "", "TTL");
+		schemaModel.read(Files.newInputStream(schemaFile), EMPTY_STRING, FORMAT_TTL);
 
 		StmtIterator stmtIterator = schemaModel.listStatements(null, ViewSchema.replaces, (RDFNode) null);
 		while (stmtIterator.hasNext()) {
@@ -125,7 +128,7 @@ public class GraphViewsImpl implements GraphViews {
 		}
 
 		Model data = ModelFactory.createDefaultModel();
-		data.read(Files.newInputStream(dataFile), "", "TTL");
+		data.read(Files.newInputStream(dataFile), EMPTY_STRING, FORMAT_TTL);
 
 		GraphImpl graph = new GraphImpl("main");
 
@@ -245,7 +248,7 @@ public class GraphViewsImpl implements GraphViews {
 		ArrayList<GraphModification> nodeRenamings = relevantGraphModifications.get(NodeRenaming.class);
 		if (nodeRenamings != null) {
 			if (nodeRenamings.size() > 1) {
-				throw new IllegalStateException("Overlapping " + GraphModification.class.getSimpleName() + "s");
+				throw new IllegalStateException(MSG_OVERLAPPING_MODIFICATIONS);
 			}
 			NodeRenaming nodeRenaming = (NodeRenaming) nodeRenamings.get(0);
 			String subjectLabel = nodeRenaming.getNewName(subject);
@@ -255,7 +258,7 @@ public class GraphViewsImpl implements GraphViews {
 		ArrayList<GraphModification> predicaateRenamings = relevantGraphModifications.get(PredicateRenaming.class);
 		if (predicaateRenamings != null) {
 			if (predicaateRenamings.size() > 1) {
-				throw new IllegalStateException("Overlapping " + GraphModification.class.getSimpleName() + "s");
+				throw new IllegalStateException(MSG_OVERLAPPING_MODIFICATIONS);
 			}
 			PredicateRenaming predicateRenaming = (PredicateRenaming) predicaateRenamings.get(0);
 			predicateLabel = predicateRenaming.getValue();
@@ -319,7 +322,7 @@ public class GraphViewsImpl implements GraphViews {
 		ArrayList<GraphModification> predicaateRenamings = relevantGraphModifications.get(PredicateRenaming.class);
 		if (predicaateRenamings != null) {
 			if (predicaateRenamings.size() > 1) {
-				throw new IllegalStateException("Overlapping " + GraphModification.class.getSimpleName() + "s");
+				throw new IllegalStateException(MSG_OVERLAPPING_MODIFICATIONS);
 			}
 			PredicateRenaming predicateRenaming = (PredicateRenaming) predicaateRenamings.get(0);
 			predicateLabel = predicateRenaming.getValue();
