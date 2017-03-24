@@ -28,9 +28,6 @@ public class TypeMatcher implements Matcher {
 
 	private final boolean checkObject;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean matches(Statement statement) {
 		boolean matches = false;

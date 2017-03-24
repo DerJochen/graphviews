@@ -39,9 +39,6 @@ public class StatementMatcher implements Matcher {
 		statementPattern = StatementImpl.toStatement(triple, modelCom);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean matches(Statement statement) {
 		boolean matches = true;
